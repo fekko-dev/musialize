@@ -29,6 +29,14 @@ Instructions for local setup will be added once there is code to run.
 
 Both environments run the same image, built once in CI. Versions and the changelog are derived from the commits. See [ADR-0004](docs/adr/0004-promote-images-from-main-by-release-tag.md).
 
+## Database migrations
+
+A migration runs before the new version starts, and for a few seconds the running version uses the new schema. A rollback also deploys the previous image against it. So **every migration must work with the version that is currently running** ([ADR-0009](docs/adr/0009-migration-bundles-as-a-separate-deploy-step.md)):
+
+- **Additive changes ship in one release:** new tables, and new columns that are nullable or have a default.
+- **Renames, drops and type changes take two releases (expand–contract):** first add the new form and stop depending on the old one; remove the old form in a later release. Never change a column's type in place: add a new column and move the data over.
+- **Don't rely on `Down()` methods** for deploys or rollbacks. A rollback deploys an earlier image and leaves the schema as it is.
+
 ## Documentation
 
 - **Domain terms** that are added or changed go into [GLOSSARY.md](GLOSSARY.md).
