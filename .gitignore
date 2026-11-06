@@ -1,0 +1,33 @@
+# Secrets and local configuration
+.local/
+.env
+.env.*
+!.env.example
+appsettings.*.local.json
+.claude/settings.local.json
+
+# .NET
+bin/
+obj/
+TestResults/
+*.user
+
+# Node / frontend
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.vite/
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDEs and OS
+.vs/
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.DS_Store
+Thumbs.db

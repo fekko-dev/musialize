@@ -1,0 +1,7 @@
+# Normalize line endings to LF in the repository and in working copies,
+# so diffs never contain line-ending noise (regardless of core.autocrlf).
+* text=auto eol=lf
+
+# Windows-only scripts need CRLF to run correctly.
+*.bat text eol=crlf
+*.cmd text eol=crlf
