@@ -1,6 +1,6 @@
 # Contributing to Musialize
 
-Before you start, read the [product vision](docs/product/vision.md), the [glossary](GLOSSARY.md) and the [architecture decisions](docs/adr/). Use the glossary's terms in code, issues and commits.
+Before you start, read the [product vision](docs/product/vision.md), the [glossary](GLOSSARY.md), the [architecture decisions](docs/adr/) and the [development process](docs/process.md). Use the glossary's terms in code, issues and commits.
 
 Instructions for local setup will be added once there is code to run.
 
