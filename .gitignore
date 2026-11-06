@@ -5,6 +5,7 @@
 !.env.example
 appsettings.*.local.json
 .claude/settings.local.json
+.claude/worktrees/
 
 # .NET
 bin/

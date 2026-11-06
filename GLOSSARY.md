@@ -67,7 +67,7 @@ A Member's commitment to play a Part if the Song makes it onto a Setlist, option
 _Avoid_: Assignment, claim, registration
 
 **Backup**:
-A Sign-up from a Member who can step in for a Part if a regular Sign-up can't play it.
+A Sign-up from a Member who could play a Part if needed: when the regular player can't, or when nobody has signed up regularly. A Part with only Backups is still open.
 _Avoid_: Reserve, substitute, stand-in
 
 **Line-up**:
