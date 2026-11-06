@@ -4,7 +4,7 @@ An Account signs in by entering an email address and then a 6-digit code sent to
 
 The session is an encrypted cookie issued by our own API, which also authenticates SignalR connections without extra setup. Because the SPA and the API share one origin, there is no CORS policy and no bearer token in the browser.
 
-A Group has one invite link at a time. It works for anyone, never expires on its own, and stops working as soon as an Organizer replaces it. A person must be signed in to Claim: someone who opens the invite link while signed out signs in first and then Claims. Signing in already proves the email address, so a Claim needs no second code. An Account can be linked to at most one Member per Group, and to Members of several Groups.
+A Group has one invite link at a time. It works for anyone, never expires on its own, and stops working as soon as a Group admin replaces it. A person must be signed in to Claim: someone who opens the invite link while signed out signs in first and then Claims. Signing in already proves the email address, so a Claim needs no second code. An Account can be linked to at most one Member per Group, and to Members of several Groups.
 
 ## Consequences
 
@@ -14,10 +14,10 @@ A Group has one invite link at a time. It works for anyone, never expires on its
   - the response to a code request is the same whether or not an Account exists.
 - The cookie is `__Host-` prefixed, `HttpOnly`, always `Secure` (TLS ends at Dokploy's proxy) and `SameSite=Strict`, and lasts at most 30 days with no sliding renewal. A "Remember me" checkbox on sign-in decides whether it survives closing the browser. Unchecked, it is a browser-session cookie, because EU guidance treats login cookies that outlive the browser session as needing consent.
 - `SameSite` alone does not stop CSRF from other `*.fekko.dev` apps, which count as the same site. A small middleware rejects state-changing requests and WebSocket upgrades whose `Sec-Fetch-Site` or `Origin` shows another origin. Nothing changes state on GET.
-- The cookie holds only the Account ID. Group membership and Organizer rights are checked in the database on each request and hub call, so an undone Claim takes effect immediately.
+- The cookie holds only the Account ID. Group membership and Group admin rights are checked in the database on each request and hub call, so an undone Claim takes effect immediately.
 - Invite tokens have 256 bits of entropy, are stored hashed, and travel in the URL fragment (`/join#<token>`) so they stay out of server logs and `Referer` headers.
 - Data Protection keys must be persisted in Postgres, otherwise every deploy signs everyone out. Local development uses Vite's dev-server proxy so it is same-origin too.
-- Emailed codes are not a recognised authenticator under NIST SP 800-63B-4, which forbids email for out-of-band authentication. We accept that for a trusted group where an Organizer can undo a Claim. Passkeys are the upgrade path: .NET 10 Identity's passkey support works through `UserManager` with a pluggable store, so it can be added over our Account table later.
+- Emailed codes are not a recognised authenticator under NIST SP 800-63B-4, which forbids email for out-of-band authentication. We accept that for a trusted group where a Group admin can undo a Claim. Passkeys are the upgrade path: .NET 10 Identity's passkey support works through `UserManager` with a pluggable store, so it can be added over our Account table later.
 - Integration tests use `WebApplicationFactory` with a fake email sender that captures the code, and `FakeTimeProvider` for expiry. Our code and cookie auth read the injected `TimeProvider`; the rate limiters do not.
 
 ## Still to verify while building

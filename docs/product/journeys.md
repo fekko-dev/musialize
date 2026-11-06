@@ -6,7 +6,7 @@ This maps how people move through Musialize during the [pilot](vision.md#pilot-r
 
 ```mermaid
 flowchart LR
-    s([Start or end]) ~~~ p[[Screen]] ~~~ a(Action) ~~~ d{Decision} ~~~ o("Organizer only"):::org
+    s([Start or end]) ~~~ p[[Screen]] ~~~ a(Action) ~~~ d{Decision} ~~~ o("Group admin only"):::org
 
     classDef org fill:#fde3c8,stroke:#d9822b,color:#000
 ```
@@ -15,11 +15,11 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    G0(["Group, invite link and first Organizers set up (script)"]) --> S
-    S[["Members: add names from the shared document (Organizer)"]]:::org --> A("Share the invite link in the group chat, outside the app")
+    G0(["Group, invite link and first Group admins set up (script)"]) --> S
+    S[["Members: add names from the shared document (Group admin)"]]:::org --> A("Share the invite link in the group chat, outside the app")
     A --> B([Open the invite link])
     B --> V{Link still valid?}
-    V -- no --> VX[[Join: link replaced, ask an Organizer]]
+    V -- no --> VX[[Join: link replaced, ask a Group admin]]
     V -- yes --> C{Signed in?}
     C -- no --> SI[[Sign in]]
     SI --> SI1(Enter email, choose Remember me)
@@ -34,12 +34,12 @@ flowchart TD
     G -- no --> I(Add yourself by name)
     H --> O
     I --> O
-    H -. wrong name .-> K("Members: undo or move the Claim (Organizer)"):::org
+    H -. wrong name .-> K("Members: undo or move the Claim (Group admin)"):::org
 
     classDef org fill:#fde3c8,stroke:#d9822b,color:#000
 ```
 
-Organizers Claim their names through the invite link like everyone else; the Organizer role itself is assigned by script, both at the start and whenever an Organizer is added or removed. Members can't switch names themselves; only an Organizer corrects a Claim. Opening the app without a valid session goes to Sign in and then to the Overview. Someone who signs in without ever using an invite link sees "You're not in a Group yet, ask for an invite link": a route guard sends an Account without a Member there.
+Group admins Claim their names through the invite link like everyone else; the Group admin role itself is assigned by script, both at the start and whenever a Group admin is added or removed. Members can't switch names themselves; only a Group admin corrects a Claim. Opening the app without a valid session goes to Sign in and then to the Overview. Someone who signs in without ever using an invite link sees "You're not in a Group yet, ask for an invite link": a route guard sends an Account without a Member there.
 
 ## 2. Between meetings
 
@@ -62,11 +62,11 @@ flowchart TD
     P --> SU("Sign up for a Part as regular or Backup, optional note")
     SU --> SR(Switch between regular and Backup, after confirming)
     SU --> W(Withdraw, with undo toast)
-    SU --> WO("Withdraw anyone's Sign-up (Organizer)"):::org
+    SU --> WO("Withdraw anyone's Sign-up (Group admin)"):::org
     P --> CM(Write a Comment)
     CM --> CE(Edit your own Comment, shown as edited)
     CM --> CD(Delete your own Comment, after confirming)
-    CM --> CA("Delete anyone's Comment (Organizer)"):::org
+    CM --> CA("Delete anyone's Comment (Group admin)"):::org
     P --> ED(Edit Song details and Parts, then Save or Cancel)
     ED --> CF{Changed by someone else since you started?}
     CF -- no --> P
@@ -82,7 +82,7 @@ The Overview shows the fill status of required Parts ("4/6", or Filled), plus a 
 
 ## 3. Review Meeting
 
-A projector shows an Organizer's screen and everyone also has the app open on their phone. Each device navigates on its own.
+A projector shows a Group admin's screen and everyone also has the app open on their phone. Each device navigates on its own.
 
 ```mermaid
 flowchart TD
@@ -90,10 +90,10 @@ flowchart TD
     B --> S[["Song page, showing e.g. 3 of 12"]]
     S --> C(Play the link and discuss)
     C --> D(Members sign up on their phones)
-    C --> E("Sign up other Members, including Unclaimed ones (Organizer)"):::org
-    D --> F("Accept, decline, or leave as Suggested (Organizer)"):::org
+    C --> E("Sign up other Members, including Unclaimed ones (Group admin)"):::org
+    D --> F("Accept, decline, or leave as Suggested (Group admin)"):::org
     E --> F
-    F -. wrong click .-> U("Undo toast (Organizer)"):::org
+    F -. wrong click .-> U("Undo toast (Group admin)"):::org
     F --> L{Last Song in the list?}
     L -- no --> X(Next)
     X --> S
@@ -113,7 +113,7 @@ flowchart TD
 
 **Lists change only when you ask.** While it's open, the Songs in it update live (fill status, status, details), but none are added, removed or reordered. The list reloads when you open the app, change the filter, or reach the end: on the last Song, Next becomes "View new" when there are updates since the list loaded. Previous and Next follow the same list, so a Song that was just accepted stays where it is and Next still works. There is no banner for updates in the pilot; "View new" covers going through the list in the Review Meeting. Live updates therefore only refresh data and never move rows.
 
-The decision has no preconditions: an Organizer can accept a Song that isn't Filled, and can change the decision later. Right after deciding, an undo toast fixes a wrong click in one tap. The Song shows the decision date, and every change is recorded in Song activity.
+The decision has no preconditions: a Group admin can accept a Song that isn't Filled, and can change the decision later. Right after deciding, an undo toast fixes a wrong click in one tap. The Song shows the decision date, and every change is recorded in Song activity.
 
 ## 4. Rehearsal
 
@@ -149,12 +149,12 @@ flowchart TD
     SUG --> SONG
     SONG -- Previous and Next --> SONG
     SONG -- back --> OV
-    OV -- menu --> MEM[["Members (Organizer)"]]:::org
+    OV -- menu --> MEM[["Members (Group admin)"]]:::org
 
     classDef org fill:#fde3c8,stroke:#d9822b,color:#000
 ```
 
-The Overview header holds the Group's name and logo and a menu with "Sign out", plus "Members" for Organizers. The pilot has one Group, so there is no Group picker yet.
+The Overview header holds the Group's name and logo and a menu with "Sign out", plus "Members" for Group admins. The pilot has one Group, so there is no Group picker yet.
 
 ## Must-haves by screen
 
@@ -167,12 +167,12 @@ Every [pilot must-have](vision.md#pilot-review-meeting-12-november-2026) maps to
 | Not in a Group yet  | Sign-in (the dead end for an Account without a Member)                                                                                                       |
 | Overview            | Fill status and optional hint, filters and their order, search, live updates and "View new"                                                                  |
 | Suggest a Song      | Suggesting a Song, duplicate check                                                                                                                           |
-| Song page           | Sign-ups and Backups, withdrawing with undo, Organizers signing up others, Comments, accept or decline with undo, edit mode and rejected saves, live updates |
+| Song page           | Sign-ups and Backups, withdrawing with undo, Group admins signing up others, Comments, accept or decline with undo, edit mode and rejected saves, live updates |
 | Members             | Adding Unclaimed Members, undoing or moving a Claim                                                                                                          |
 
 Song activity is recorded but has no screen yet. Responsiveness, translation-ready text and branding apply to every screen.
 
-## Organizer-only actions
+## Group admin actions
 
 These become permission rules in the specs. Everything else any Member can do, including editing a Song's details and Parts.
 
@@ -181,7 +181,7 @@ These become permission rules in the specs. Everything else any Member can do, i
 - Accept or decline a Song, and change that decision later.
 - Delete anyone's Comment.
 
-Assigning the Organizer role, creating the Group and replacing the invite link happen by script in the pilot, not in the app.
+Assigning the Group admin role, creating the Group and replacing the invite link happen by script in the pilot, not in the app.
 
 ## Pilot features
 
@@ -190,17 +190,17 @@ Each feature is one unit to grill and wireframe together, ending in one spec iss
 | #   | Feature            | Screens                                             | Must-haves                                                                                                                                                                    | Depends on       | Cut order                           |
 | --- | ------------------ | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ----------------------------------- |
 | 1   | Sign-in and Claim  | Sign in, Enter code, Join, Not in a Group yet       | Sign-in with an email code; Claiming through an invite link, adding yourself                                                                                                  | Walking skeleton | Never cut                           |
-| 2   | Songs and Line-ups | Suggest a Song, Song page (details, Parts, Line-up) | Suggesting a Song with Parts and the duplicate check; Sign-ups, Backup and withdrawing; Organizers signing up others and withdrawing anyone's Sign-up; Song activity recorded | 1                | Duplicate check cut 2nd, Backup 3rd |
+| 2   | Songs and Line-ups | Suggest a Song, Song page (details, Parts, Line-up) | Suggesting a Song with Parts and the duplicate check; Sign-ups, Backup and withdrawing; Group admins signing up others and withdrawing anyone's Sign-up; Song activity recorded | 1                | Duplicate check cut 2nd, Backup 3rd |
 | 3   | Overview           | Overview                                            | Fill status and optional hint, filters and their order, search                                                                                                                | 2                | Never cut                           |
 | 4   | Review Meeting     | Song page (decision, Previous and Next)             | Accepting or declining, decision date, undo toast                                                                                                                             | 3                | Never cut                           |
-| 5   | Comments           | Song page (Comments)                                | Comments: write, edit, delete; Organizers delete anyone's                                                                                                                     | 2                | Never cut                           |
+| 5   | Comments           | Song page (Comments)                                | Comments: write, edit, delete; Group admins delete anyone's                                                                                                                     | 2                | Never cut                           |
 | 6   | Edit mode          | Song page (edit mode)                               | Edit mode with Save/Cancel and rejected saves                                                                                                                                 | 2                | Never cut                           |
 | 7   | Live updates       | Overview, Song page                                 | Live updates, lists that change only when you ask, "View new"                                                                                                                 | 3, 4, 6          | Cut 4th, last                       |
 | 8   | Members            | Members                                             | Members screen: add Unclaimed Members, undo or move a Claim                                                                                                                   | 1                | Cut 1st; scripts take over          |
 
 Notes on the order:
 
-- **Organizers signing up others sits in Songs and Line-ups**, not the Review Meeting, so the Line-up rules are grilled and specced once.
+- **Group admins signing up others sits in Songs and Line-ups**, not the Review Meeting, so the Line-up rules are grilled and specced once.
 - **Edit mode and live updates are separate features:** live updates are cut last but are the riskiest technically (SignalR), and edit mode works without them.
 - **Members comes last** because it's cut first: until then, the script adds Unclaimed Members and fixes Claims.
 
@@ -214,7 +214,7 @@ Must-haves that don't belong to a single feature:
 
 Not part of the pilot, but noted so the journeys can grow into them:
 
-- **Create an Unclaimed Member inline** while signing someone up, with a dialog that asks the Organizer to check the spelling of a new name.
+- **Create an Unclaimed Member inline** while signing someone up, with a dialog that asks the Group admin to check the spelling of a new name.
 - **Tell Backups when a Part opens up** because its last regular player withdrew (needs notifications).
 - **An in-app indicator for list updates**, such as a banner or a refresh button with a count. This belongs with live updates, not notifications; it was cut only to keep the pilot small.
 - **Notify Members about new Suggestions**, outside the app.
