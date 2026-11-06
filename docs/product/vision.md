@@ -30,7 +30,7 @@ What shared documents do well, and Musialize must keep: a dense overview on desk
   - signs up for Parts as a regular player or as a Backup
   - comments on Songs
   - checks what they need to prepare
-- **Organizer**: does everything a Member can, plus:
+- **Group admin**: does everything a Member can, plus:
   - decides at the Review Meeting which Suggestions are accepted or declined
   - signs Members up on their behalf
   - deletes Comments
@@ -54,7 +54,7 @@ Musialize **is not**:
 - **A chat.** The group chat stays for everything social.
 - **File storage.** Sheet music, chord charts and audio stay in Google Drive and similar services; Songs only link to them.
 - **A playlist or streaming tool.** Spotify and YouTube Music playlists keep handling listening.
-- **A replacement for the people who decide.** The app gathers Sign-ups and opinions; the Organizers decide.
+- **A replacement for the people who decide.** The app gathers Sign-ups and opinions; the Group admins decide.
 
 ## Pilot: Review Meeting, 12 November 2026
 
@@ -64,13 +64,13 @@ The goal is that the pilot Group can use Musialize in that meeting, or at least 
 
 - Sign-in with an email one-time code.
 - Claiming through an invite link. Someone whose name isn't listed adds themselves.
-- A Members screen for Organizers: add Unclaimed Members, and undo or move a Claim. Members can't switch names themselves.
+- A Members screen for Group admins: add Unclaimed Members, and undo or move a Claim. Members can't switch names themselves.
 - Suggest a Song with title, artist, key, BPM, a link and Parts (required or optional), with a duplicate check that offers to open the existing Song or clear the form.
 - Sign-ups (regular by default, Backup as the alternative, also on a Part nobody has signed up for) and withdrawing, with an undo toast. A Backup can switch to regular after confirming.
-- Organizers signing up other Members and withdrawing anyone's Sign-up.
-- Comments: edit your own ("(edited)" shown) and delete with confirmation. Organizers can delete anyone's.
+- Group admins signing up other Members and withdrawing anyone's Sign-up.
+- Comments: edit your own ("(edited)" shown) and delete with confirmation. Group admins can delete anyone's.
 - An overview with fill status ("4/6", Filled) and a separate hint for open optional Parts, filtered by Suggested, Accepted (the Repertoire pool) and Declined, with search by title or artist. Each filter has its own order, shown on screen: Suggested oldest first, Accepted by title, Declined by most recent decision.
-- Organizers accepting or declining a Song, with the decision date shown and an undo toast. Previous and Next on a Song step through the current list, so the Review Meeting can go through Suggestions one by one.
+- Group admins accepting or declining a Song, with the decision date shown and an undo toast. Previous and Next on a Song step through the current list, so the Review Meeting can go through Suggestions one by one.
 - Live updates of the overview and Songs. Lists change only when you ask (opening the app, changing the filter, or "View new" at the end of the list), so rows never move under someone's finger.
 - Edit mode with Save/Cancel for Song details and Parts. Saving over a change you didn't see is rejected, your unsaved input is kept, and a banner shows the change. Line-up changes never conflict with editing.
 - Song activity (Sign-ups, withdrawals, status and Part changes) recorded from day one, without a history screen yet.
@@ -81,7 +81,7 @@ The goal is that the pilot Group can use Musialize in that meeting, or at least 
 
 **If time runs short, cut in this order:** the Members screen (scripts take over), the duplicate check, then Backup, then live updates.
 
-**Out of scope for the pilot:** Events and Setlists (playlists keep handling them for now), Archive, the history screen, automatic lookup, other admin screens (handled by scripts), notifications and @-mentions, the install prompt, passkeys, and offline use.
+**Out of scope for the pilot:** Events and Setlists (playlists keep handling them for now), Archive, the history screen, automatic lookup, other management screens (handled by scripts), notifications and @-mentions, the install prompt, passkeys, and offline use.
 
 **What makes the pilot a success:** the Group stops using the shared documents for Suggestions and Sign-ups.
 
@@ -101,7 +101,7 @@ Roughly in order of expected value; none of these is committed yet:
 - **Notifications and @-mentions** in Comments, including new Suggestions and telling Backups when a Part they back opens up.
 - **Install prompt and passkeys.**
 - **Per-Group addresses and branding** once Musialize has its own domain, all on one deployment (see [ADR-0002](../adr/0002-multiple-groups-per-deployment.md)).
-- **Management screens for Organizers and Admins:** invites, default Parts, Groups. Creating an Unclaimed Member inline while signing someone up, with a check for typos in the new name.
+- **Management screens for Group admins and Super admins:** invites, default Parts, Groups. Creating an Unclaimed Member inline while signing someone up, with a check for typos in the new name.
 - **Vocals:** a better organization of vocal Parts and harmonies, possibly with lyrics marking who sings what.
 - **A user manual.**
 - **More languages.**
@@ -133,5 +133,5 @@ Roughly in order of expected value; none of these is committed yet:
 - **Performances:** is a Performance more than a kind of Event? How is working up to a Performance across several Rehearsals represented? Where do open Rehearsals fit?
 - **Instruments:** Parts start as free text, with suggestions drawn from Part names already in use in the Group. Revisit a managed Instrument list (one Instrument plus an optional label per Part) when Member profiles or icons arrive, or when typos start showing up in the filter. The Part names in use by then become the starting list.
 - **Seats on Parts:** do Parts need a seat count? (Settled: a Part with only Backups counts as open, and the fill status "4/6" counts required Parts only.)
-- **Organizers:** how a Member becomes or stops being an Organizer in the app, and what else only Organizers may do. (For the pilot, the role is assigned by script.)
+- **Group admins:** how a Member becomes or stops being a Group admin in the app, and what else only Group admins may do. (For the pilot, the role is assigned by script.)
 - **Retiring Songs:** what happens to Repertoire Songs the Group stops playing.
