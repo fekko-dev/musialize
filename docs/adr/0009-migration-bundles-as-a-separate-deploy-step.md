@@ -21,4 +21,4 @@ EF Core still generates `Down()` methods. They can undo a mistake locally, but d
   - `pnpm dev` runs `dotnet ef database update`.
   - Integration tests migrate their test database during setup.
   - The end-to-end Compose setup runs the bundle as its own service before the app starts, with both roles, so the bundle and the permission model are tested before staging. Local development and integration tests may use a single database user.
-- **Fallback if the one-off container can't reach the database:** apply migrations at startup, with `/health` healthy only after they succeed, and track a move back to bundles as an issue.
+- **No fallback to migrating at startup.** Setting up the server includes checking that a one-off container reaches each environment's database. If it can't, that is fixed before anything is deployed. A fallback is only considered after its trade-offs are written down and approved.
