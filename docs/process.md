@@ -6,7 +6,8 @@ Musialize follows an iterative, incremental software development lifecycle. Each
 |---|---|---|---|
 | Plan and analyze | Discovery | Interview-style sessions that challenge assumptions | [vision](product/vision.md), [GLOSSARY.md](../GLOSSARY.md), [ADRs](adr/) |
 | | Requirements | A spec with problem, solution, user stories, decisions and what's out of scope | **One spec issue per feature** on GitHub |
-| Design | User journeys and flows | Mermaid diagrams | In the spec issue |
+| Design | Journeys and screen map | Before a release's first feature: Mermaid flowcharts per journey, a screen map and a table mapping must-haves to screens | [journeys.md](product/journeys.md) |
+| | Feature flow | The feature's part of the journey, zoomed in, as Mermaid | In the spec issue |
 | | Wireframes | Figma, *Wireframes* page | Figma, linked from the spec issue |
 | | Domain model (ERD, UML) | Mermaid `erDiagram` / `classDiagram` | In the spec issue; a lasting domain model in `docs/` once it's stable |
 | | Visual design | Figma: *Design system* page (colours, typography, components), *Designs* page (screens) | Figma, linked from the spec issue |
@@ -15,6 +16,10 @@ Musialize follows an iterative, incremental software development lifecycle. Each
 | Test | Verify | Required CI checks, code review against the conventions and against the spec, a check on staging | PR and staging |
 | Deploy | Release | Merge the release PR | See [ADR-0004](adr/0004-promote-images-from-main-by-release-tag.md) |
 | Maintain and get feedback | Learn | Use at Review Meetings, triage incoming issues, a short retrospective after each feature | New issues, updated docs |
+
+### Order within a feature
+
+The table lists phases, not a strict sequence. For each feature, requirements and wireframes are worked out together in one session: grill the feature (`/grill-with-docs`) and draw the wireframes as questions come up, because a drawing settles questions talk can't. The spec issue is written at the end of that session with `/to-spec`: it records the decisions and links the frames and the feature's part of the journey map. Tickets (`/to-tickets`) follow from the spec. Small changes can skip the spec and go straight to implementation.
 
 ## Figma
 
