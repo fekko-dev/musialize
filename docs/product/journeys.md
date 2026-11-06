@@ -155,4 +155,5 @@ Not part of the pilot, but noted so the journeys can grow into them:
 
 - **Create an Unclaimed Member inline** while signing someone up, with a dialog that asks the Organizer to check the spelling of a new name.
 - **Tell Backups when a Part opens up** because its last regular player withdrew (needs notifications).
-- **Show updates while you're in the app**, and notify Members about new Suggestions.
+- **An in-app indicator for list updates**, such as a banner or a refresh button with a count. This belongs with live updates, not notifications; it was cut only to keep the pilot small.
+- **Notify Members about new Suggestions**, outside the app.
