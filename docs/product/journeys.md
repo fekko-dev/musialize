@@ -104,7 +104,13 @@ flowchart TD
     classDef org fill:#fde3c8,stroke:#d9822b,color:#000
 ```
 
-**Lists change only when you ask.** The Overview is sorted newest first. While it's open, the Songs in it update live (fill status, status, details), but none are added, removed or reordered. The list reloads when you open the app, change the filter, or reach the end: on the last Song, Next becomes "View new" when there are updates since the list loaded. Previous and Next follow the same list, so a Song that was just accepted stays where it is and Next still works. There is no banner for updates in the pilot; "View new" covers going through the list in the Review Meeting. Live updates therefore only refresh data and never move rows.
+**Each filter has its own order**, and the Overview shows which one is in use (for example "Oldest first"):
+
+- **Suggested:** oldest first. It's a queue to review in order, and new Suggestions join at the end.
+- **Accepted:** by title, A to Z, so a Song is easy to find at a Rehearsal.
+- **Declined:** most recently decided first.
+
+**Lists change only when you ask.** While it's open, the Songs in it update live (fill status, status, details), but none are added, removed or reordered. The list reloads when you open the app, change the filter, or reach the end: on the last Song, Next becomes "View new" when there are updates since the list loaded. Previous and Next follow the same list, so a Song that was just accepted stays where it is and Next still works. There is no banner for updates in the pilot; "View new" covers going through the list in the Review Meeting. Live updates therefore only refresh data and never move rows.
 
 The decision has no preconditions: an Organizer can accept a Song that isn't Filled, and can change the decision later. Right after deciding, an undo toast fixes a wrong click in one tap. The Song shows the decision date, and every change is recorded in Song activity.
 
