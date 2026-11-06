@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Musialize.Api/Musialize.Api.csproj" />
+    <Project Path="src/Musialize.Application/Musialize.Application.csproj" />
+    <Project Path="src/Musialize.Domain/Musialize.Domain.csproj" />
+    <Project Path="src/Musialize.Infrastructure/Musialize.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Musialize.Api.Tests/Musialize.Api.Tests.csproj" />
+  </Folder>
+</Solution>
