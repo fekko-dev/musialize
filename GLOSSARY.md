@@ -15,7 +15,7 @@ A person who belongs to a Group. One person can be a Member of several Groups.
 _Avoid_: Musician, player, user
 
 **Account**:
-How a person signs in, independent of any Group. One Account can be linked to Members of several Groups.
+How a person signs in, independent of any Group. One Account can be linked to Members of several Groups, but to at most one Member per Group.
 _Avoid_: User, profile, login
 
 **Unclaimed Member**:
