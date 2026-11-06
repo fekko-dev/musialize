@@ -8,6 +8,7 @@ There is one long-lived branch, `main`, and no environment branches. CI builds a
 - Each environment is a Dokploy Application with the Docker image as its source, in its own Dokploy environment, with its own database. GitHub Actions deploys through the Dokploy API: first set the image tag (`application.saveDockerProvider`), then deploy (`application.deploy`). Following Dokploy's own production guidance, nothing is built on the server.
 - Only immutable image tags (the SHA or the version) are deployed, never a moving tag such as `latest`. Rolling back means deploying an earlier tag again.
 - Release-please reads the Conventional Commits on `main` to choose the next version and write the changelog.
+- Deploys avoid most downtime without strict rules. Each Application has a health check on `/health` (the image needs `curl`) and the Swarm Update Config `"Order": "start-first"`, so the new container must be healthy before the old one stops; otherwise the deploy rolls back automatically. Migrations are deliberately *not* required to stay compatible with the previous version: releases are deliberate and happen outside meetings, so a few seconds of errors while old and new run side by side are acceptable. There is no server-side maintenance page; the app shows a "reconnecting…" banner and an "update available, reload" prompt instead.
 
 ## Still to verify while building the pipeline
 

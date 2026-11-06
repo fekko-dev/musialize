@@ -24,4 +24,4 @@ One Figma project with three pages, which stays within the free plan's limits:
 2. **Design system**: colours, typography, spacing and components.
 3. **Designs**: the final screens, built from the design system.
 
-The designs in Figma are where visual decisions get made, and code follows them. Mermaid diagrams live next to the text they explain, in issues or in `docs/`.
+The designs in Figma are where visual decisions get made, and code follows them. Agents read Figma through the open-source Figma CLI, not through a Figma MCP connector. Mermaid diagrams live next to the text they explain, in issues or in `docs/`.
