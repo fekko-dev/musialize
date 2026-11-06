@@ -68,7 +68,7 @@ The goal is that the pilot Group can use Musialize in that meeting, or at least 
 - Organizers signing up other Members and withdrawing anyone's Sign-up.
 - Comments: edit your own ("(edited)" shown) and delete with confirmation. Organizers can delete anyone's.
 - An overview with fill status ("4/6", Filled) and a separate hint for open optional Parts, filtered by Suggested, Accepted (the Repertoire pool) and Declined, with search by title or artist. Each filter has its own order, shown on screen: Suggested oldest first, Accepted by title, Declined by most recent decision.
-- Organizers accepting or declining a Song, with the decision date shown and an undo toast.
+- Organizers accepting or declining a Song, with the decision date shown and an undo toast. Previous and Next on a Song step through the current list, so the Review Meeting can go through Suggestions one by one.
 - Live updates of the overview and Songs. Lists change only when you ask (opening the app, changing the filter, or "View new" at the end of the list), so rows never move under someone's finger.
 - Edit mode with Save/Cancel for Song details and Parts. Saving over a change you didn't see is rejected, your unsaved input is kept, and a banner shows the change. Line-up changes never conflict with editing.
 - Song activity (Sign-ups, withdrawals, status and Part changes) recorded from day one, without a history screen yet.

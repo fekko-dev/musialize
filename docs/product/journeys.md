@@ -183,6 +183,33 @@ These become permission rules in the specs. Everything else any Member can do, i
 
 Assigning the Organizer role, creating the Group and replacing the invite link happen by script in the pilot, not in the app.
 
+## Pilot features
+
+Each feature is one unit to grill and wireframe together, ending in one spec issue (see [Order within a feature](../process.md#order-within-a-feature)). They're listed in build order: each one depends only on features above it. The cut order is the vision's "If time runs short" list. A feature with a cut item builds that item as a separate ticket, last within the feature.
+
+| # | Feature | Screens | Must-haves | Depends on | Cut order |
+|---|---|---|---|---|---|
+| 1 | Sign-in and Claim | Sign in, Enter code, Join, Not in a Group yet | Sign-in with an email code; Claiming through an invite link, adding yourself | Walking skeleton | Never cut |
+| 2 | Songs and Line-ups | Suggest a Song, Song page (details, Parts, Line-up) | Suggesting a Song with Parts and the duplicate check; Sign-ups, Backup and withdrawing; Organizers signing up others and withdrawing anyone's Sign-up; Song activity recorded | 1 | Duplicate check cut 2nd, Backup 3rd |
+| 3 | Overview | Overview | Fill status and optional hint, filters and their order, search | 2 | Never cut |
+| 4 | Review Meeting | Song page (decision, Previous and Next) | Accepting or declining, decision date, undo toast | 3 | Never cut |
+| 5 | Comments | Song page (Comments) | Comments: write, edit, delete; Organizers delete anyone's | 2 | Never cut |
+| 6 | Edit mode | Song page (edit mode) | Edit mode with Save/Cancel and rejected saves | 2 | Never cut |
+| 7 | Live updates | Overview, Song page | Live updates, lists that change only when you ask, "View new" | 3, 4, 6 | Cut 4th, last |
+| 8 | Members | Members | Members screen: add Unclaimed Members, undo or move a Claim | 1 | Cut 1st; scripts take over |
+
+Notes on the order:
+
+- **Organizers signing up others sits in Songs and Line-ups**, not the Review Meeting, so the Line-up rules are grilled and specced once.
+- **Edit mode and live updates are separate features:** live updates are cut last but are the riskiest technically (SignalR), and edit mode works without them.
+- **Members comes last** because it's cut first: until then, the script adds Unclaimed Members and fixes Claims.
+
+Must-haves that don't belong to a single feature:
+
+- **Song activity recorded** sits in Songs and Line-ups, which builds the recording and the first entries (Sign-ups, withdrawals). Review Meeting adds status changes and Edit mode adds Part changes. The vision's open question on how activity is recorded must be settled before feature 2.
+- **Responsive layout and translation-ready text** isn't a feature: the walking skeleton sets it up, and every feature's spec and review check it.
+- **Deployed via CI/CD, with branding from deployment settings** belongs to the walking skeleton.
+
 ## Later
 
 Not part of the pilot, but noted so the journeys can grow into them:
