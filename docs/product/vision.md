@@ -116,7 +116,7 @@ Roughly in order of expected value; none of these is committed yet:
   - EditorConfig, Prettier and ESLint, and `dotnet format` with analyzers
   - line endings normalized with `.gitattributes`, so diffs never contain whitespace or line-ending noise
   - checked in CI
-- **Pragmatic DDD, TDD and Clean Architecture where they pay off.** Rich domain objects and test-first development where real rules live (Song, Line-up, Claim). Dependencies point inward so the domain has no framework code; the backend's four layers and why are in [ADR-0008](../adr/0008-four-layer-clean-architecture-with-use-case-handlers.md). Any abstraction beyond those is added only when it solves a concrete problem. Follow KISS, YAGNI, DRY and SOLID.
+- **Pragmatic DDD, TDD and Clean Architecture where they pay off.** Rich domain objects and test-first development where real rules live (Song, Line-up, Claim). Dependencies point inward so the domain has no framework code ([ADR-0008](../adr/0008-four-layer-clean-architecture-with-use-case-handlers.md)). Layers and abstractions are added only when they solve a concrete problem. Follow KISS, YAGNI, DRY and SOLID.
 - **The proposed technology stack is provisional:**
   - React + TypeScript + Vite, TanStack Router and TanStack Query
   - ASP.NET Core, PostgreSQL with EF Core, SignalR
