@@ -26,6 +26,14 @@ _Avoid_: Placeholder, guest, ghost
 Linking an Account to an Unclaimed Member, so the person takes over its Sign-ups, Suggestions and Comments. An Organizer can undo or correct a Claim.
 _Avoid_: Link, merge, register
 
+**Invite link**:
+The Group's link through which a person Joins it. A Group has one at a time; replacing it makes the old one stop working.
+_Avoid_: Invitation, join code
+
+**Join**:
+Becoming a Member of a Group through its Invite link, either by Claiming an Unclaimed Member or by adding yourself by name.
+_Avoid_: Register, sign up (a Sign-up is a commitment to a Part)
+
 **Organizer**:
 A Member who decides which Songs enter the Repertoire and manages the Group. A Group has one or more Organizers.
 _Avoid_: Board, moderator, admin, committee
