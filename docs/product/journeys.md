@@ -16,7 +16,7 @@ flowchart LR
 ```mermaid
 flowchart TD
     G0(["Group, invite link and first Organizers set up (script)"]) --> S
-    S[["Members: add names from the shared document (Organizer)"]]:::org --> A("Share the invite link in the group chat (Organizer)"):::org
+    S[["Members: add names from the shared document (Organizer)"]]:::org --> A("Share the invite link in the group chat, outside the app")
     A --> B([Open the invite link])
     B --> V{Link still valid?}
     V -- no --> VX[[Join: link replaced, ask an Organizer]]
@@ -39,7 +39,7 @@ flowchart TD
     classDef org fill:#fde3c8,stroke:#d9822b,color:#000
 ```
 
-Organizers Claim their names through the invite link like everyone else; the Organizer role itself is assigned by script, both at the start and whenever an Organizer is added or removed. Members can't switch names themselves; only an Organizer corrects a Claim. Opening the app without a valid session goes to Sign in and then to the Overview. Someone who signs in without ever using an invite link sees "You're not in a Group yet, ask for an invite link".
+Organizers Claim their names through the invite link like everyone else; the Organizer role itself is assigned by script, both at the start and whenever an Organizer is added or removed. Members can't switch names themselves; only an Organizer corrects a Claim. Opening the app without a valid session goes to Sign in and then to the Overview. Someone who signs in without ever using an invite link sees "You're not in a Group yet, ask for an invite link": a route guard sends an Account without a Member there.
 
 ## 2. Between meetings
 
@@ -62,6 +62,7 @@ flowchart TD
     P --> SU("Sign up for a Part as regular or Backup, optional note")
     SU --> SR(Switch between regular and Backup, after confirming)
     SU --> W(Withdraw, with undo toast)
+    SU --> WO("Withdraw anyone's Sign-up (Organizer)"):::org
     P --> CM(Write a Comment)
     CM --> CE(Edit your own Comment, shown as edited)
     CM --> CD(Delete your own Comment, after confirming)
@@ -85,7 +86,7 @@ A projector shows an Organizer's screen and everyone also has the app open on th
 
 ```mermaid
 flowchart TD
-    A[["Overview, filtered to Suggested, on the projector (Organizer)"]]:::org --> B(Open a Suggestion)
+    A[["Overview, filtered to Suggested, on the projector"]] --> B(Open a Suggestion)
     B --> S[["Song page, showing e.g. 3 of 12"]]
     S --> C(Play the link and discuss)
     C --> D(Members sign up on their phones)
@@ -154,6 +155,33 @@ flowchart TD
 ```
 
 The Overview header holds the Group's name and logo and a menu with "Sign out", plus "Members" for Organizers. The pilot has one Group, so there is no Group picker yet.
+
+## Must-haves by screen
+
+Every [pilot must-have](vision.md#pilot-review-meeting-12-november-2026) maps to a screen, and every screen serves one.
+
+| Screen | Must-haves |
+|---|---|
+| Sign in, Enter code | Sign-in with an email one-time code |
+| Join | Claiming through an invite link, adding yourself |
+| Not in a Group yet | Sign-in (the dead end for an Account without a Member) |
+| Overview | Fill status and optional hint, filters and their order, search, live updates and "View new" |
+| Suggest a Song | Suggesting a Song, duplicate check |
+| Song page | Sign-ups and Backups, withdrawing with undo, Organizers signing up others, Comments, accept or decline with undo, edit mode and rejected saves, live updates |
+| Members | Adding Unclaimed Members, undoing or moving a Claim |
+
+Song activity is recorded but has no screen yet. Responsiveness, translation-ready text and branding apply to every screen.
+
+## Organizer-only actions
+
+These become permission rules in the specs. Everything else any Member can do, including editing a Song's details and Parts.
+
+- Open the Members screen: add Unclaimed Members, undo or move a Claim.
+- Sign up other Members, including Unclaimed ones, and withdraw anyone's Sign-up.
+- Accept or decline a Song, and change that decision later.
+- Delete anyone's Comment.
+
+Assigning the Organizer role, creating the Group and replacing the invite link happen by script in the pilot, not in the app.
 
 ## Later
 
