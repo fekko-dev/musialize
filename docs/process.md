@@ -29,4 +29,6 @@ One Figma project with three pages, which stays within the free plan's limits:
 2. **Design system**: colours, typography, spacing and components.
 3. **Designs**: the final screens, built from the design system.
 
+**Wireframe conventions.** Greyscale only, no icons or brand styling, Inter. Frames use auto-layout and are named `<Screen> / Desktop` (1440 wide) and `<Screen> / Phone` (390 wide); extra states as `<Screen> (<state>) / Phone`. Text uses the Tailwind type scale (12/14/16/18/20). Use glossary terms exactly, never the _Avoid_ words. Draw only must-haves. Open questions are asked in the session, not left on the canvas.
+
 The designs in Figma are where visual decisions get made, and code follows them. Agents read Figma through the open-source Figma CLI, not through a Figma MCP connector. Mermaid diagrams live next to the text they explain, in issues or in `docs/`.
