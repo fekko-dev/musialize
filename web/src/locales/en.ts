@@ -10,6 +10,8 @@ export const en = {
     unreachable: "The server can't be reached. Try again later.",
     statusLabel: "Status",
     versionLabel: "Version",
+    migrationLabel: "Database migration",
+    migrationUnknown: "Unknown",
     status: {
       healthy: "Healthy",
       unhealthy: "Unhealthy",
