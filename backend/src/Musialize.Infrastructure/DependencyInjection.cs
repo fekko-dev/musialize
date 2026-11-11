@@ -13,7 +13,7 @@ public static class DependencyInjection
         // A named connection string is read from configuration when the first DbContext is created,
         // so startup, and build-time OpenAPI generation, never need a database or connection string.
         services.AddDbContext<MusializeDbContext>(options => options
-            .UseNpgsql("Name=ConnectionStrings:Musialize")
+            .UseNpgsql("Name=ConnectionStrings:Database")
             .UseSnakeCaseNamingConvention());
         services.AddScoped<IDatabaseHealth, DatabaseHealth>();
         return services;
