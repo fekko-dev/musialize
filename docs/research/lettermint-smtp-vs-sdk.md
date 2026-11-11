@@ -19,21 +19,21 @@ What the SDK would give us is a typed `MessageId`, typed exceptions, a `RetryAft
 
 Legend: ✅ yes, documented · 🟡 partial / caveat · ❌ no
 
-| | MailKit → SMTP relay | `Lettermint` SDK → HTTP API |
-|---|---|---|
-| Lettermint message ID on send | 🟡 in the `250` text (`id=<uuid>`); parse it from the returned string | ✅ `SendMailResponse.MessageId` |
-| Tags / metadata | ✅ `X-LM-Tags`, `X-LM-Metadata-<key>` headers | ✅ `.Tags(...)`, `.Metadata(...)` |
-| Idempotency | ✅ `Idempotency-Key` message header | ✅ `IdempotentRequestOptions` |
-| Reply-To, custom headers, text + HTML | ✅ | ✅ |
-| Errors | `SmtpCommandException` with `StatusCode`; 4xx temporary, 5xx permanent | typed exceptions per HTTP status; `RetryAfter` on 429/5xx |
-| Automatic retry | ❌ none | ❌ "never retries on its own" |
-| Local/CI with Mailpit | ✅ same code path | ❌ needs an app-level fake |
-| Lettermint Sandbox | 🟡 header-driven; paid plans only | 🟡 `.SandboxResult(...)`; paid plans only |
-| Port | 587 (Hetzner: open, tested) | 443 |
-| Default timeout | 2 min (socket) | 30 s (whole request) |
-| Package age / downloads | since 2013 / ~289M | since 2026-09-07 / ~3.6K |
-| Transitive deps (net8/net10) | MimeKit → BouncyCastle.Cryptography, System.Security.Cryptography.Pkcs; System.Formats.Asn1 | none |
-| Licence | MIT | MIT |
+|                                       | MailKit → SMTP relay                                                                        | `Lettermint` SDK → HTTP API                               |
+| ------------------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Lettermint message ID on send         | 🟡 in the `250` text (`id=<uuid>`); parse it from the returned string                       | ✅ `SendMailResponse.MessageId`                           |
+| Tags / metadata                       | ✅ `X-LM-Tags`, `X-LM-Metadata-<key>` headers                                               | ✅ `.Tags(...)`, `.Metadata(...)`                         |
+| Idempotency                           | ✅ `Idempotency-Key` message header                                                         | ✅ `IdempotentRequestOptions`                             |
+| Reply-To, custom headers, text + HTML | ✅                                                                                          | ✅                                                        |
+| Errors                                | `SmtpCommandException` with `StatusCode`; 4xx temporary, 5xx permanent                      | typed exceptions per HTTP status; `RetryAfter` on 429/5xx |
+| Automatic retry                       | ❌ none                                                                                     | ❌ "never retries on its own"                             |
+| Local/CI with Mailpit                 | ✅ same code path                                                                           | ❌ needs an app-level fake                                |
+| Lettermint Sandbox                    | 🟡 header-driven; paid plans only                                                           | 🟡 `.SandboxResult(...)`; paid plans only                 |
+| Port                                  | 587 (Hetzner: open, tested)                                                                 | 443                                                       |
+| Default timeout                       | 2 min (socket)                                                                              | 30 s (whole request)                                      |
+| Package age / downloads               | since 2013 / ~289M                                                                          | since 2026-09-07 / ~3.6K                                  |
+| Transitive deps (net8/net10)          | MimeKit → BouncyCastle.Cryptography, System.Security.Cryptography.Pkcs; System.Formats.Asn1 | none                                                      |
+| Licence                               | MIT                                                                                         | MIT                                                       |
 
 ## 3. Findings
 
@@ -56,6 +56,7 @@ Legend: ✅ yes, documented · 🟡 partial / caveat · ❌ no
   - `550 5.7.1`: unverified domain or recipient.
 
   All codes are in the [response codes](https://lettermint.co/docs/guides/send-email-with-smtp/response-codes) guide. MailKit reports a rejected command as `SmtpCommandException` with `StatusCode` and `ErrorCode` (`MessageNotAccepted`, `SenderNotAccepted`, `RecipientNotAccepted`, …) ([SmtpCommandException.cs](https://github.com/jstedfast/MailKit/blob/4.18.1/MailKit/Net/Smtp/SmtpCommandException.cs)). MailKit's `SmtpClient` contains no retry logic (no "retry" in [SmtpClient.cs @4.18.1](https://github.com/jstedfast/MailKit/blob/4.18.1/MailKit/Net/Smtp/SmtpClient.cs)).
+
 - **API/SDK:** the OpenAPI spec lists `202`, `401`, `403` (`FEATURE_NOT_AVAILABLE`), `409` (idempotency), `422` (`VALIDATION_ERROR`), `429` (`RATE_LIMITED`, with `Retry-After`) and `500` ([OpenAPI](https://lettermint.co/docs/api-reference/sending/0.0.1/lettermint-sending-openapi.json)). The SDK maps each to an exception: `AuthenticationException`, `ValidationException`, `RateLimitException.RetryAfter`, `ServerException.RetryAfter`, `LettermintTimeoutException`, `ConnectionException`, and so on. It also states: "The SDK never retries on its own" ([README](https://github.com/lettermint/lettermint-dotnet/blob/main/README.md), [Exceptions.cs](https://github.com/lettermint/lettermint-dotnet/blob/main/src/Lettermint/Exceptions.cs)).
 - **Rate limits:** SMTP "uses the same sending pipeline as the Sending API" and has "no fixed per-minute rate limit". Plan quota and abuse controls still apply ([SMTP guide](https://lettermint.co/docs/guides/send-email-with-smtp)). ⚠️ No numeric API rate limit is published for the Sending API ([limitations](https://lettermint.co/docs/platform/emails/limitations)). It doesn't matter at our volume.
 - **What this means for us:** neither path retries. A sign-in code is sent while the person waits on the page, so the simple and correct behaviour is the same on both paths: on a temporary failure, show "couldn't send, try again". The new code gets a new idempotency key, so there is no need for a background retry queue (YAGNI).
@@ -70,17 +71,17 @@ Legend: ✅ yes, documented · 🟡 partial / caveat · ❌ no
 
 ### 3.4 Dependency risk
 
-| | `Lettermint` | `MailKit` |
-|---|---|---|
-| Latest | 2.3.0, 2026-10-30 | 4.18.2, 2026-10-23 |
-| First release | 1.0.0, 2026-09-07 | repo created 2013-12-07 |
-| Releases | 8 in 2 months; breaking 2.0 on 2026-10-04 | regular releases (latest tag 4.18.1 on GitHub; 4.18.2 on NuGet) |
-| Downloads | ~3.6K | ~289M (MimeKit ~345M) |
-| Maintainers | NuGet owner `lettermint`; contributors `bjarn` (22 commits), dependabot, a release bot | NuGet owner `jstedfast`; 6.9K stars |
-| Issues | 0 ever filed | 8 open |
-| Licence | MIT | MIT |
-| Targets | net8.0, net10.0 | netstandard2.0/2.1, net4.6.2–4.8, net8.0, net10.0 |
-| Transitive deps (net8/10) | none | MimeKit 4.18.2 (→ BouncyCastle.Cryptography 2.7.0, System.Security.Cryptography.Pkcs), System.Formats.Asn1 |
+|                           | `Lettermint`                                                                           | `MailKit`                                                                                                  |
+| ------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Latest                    | 2.3.0, 2026-10-30                                                                      | 4.18.2, 2026-10-23                                                                                         |
+| First release             | 1.0.0, 2026-09-07                                                                      | repo created 2013-12-07                                                                                    |
+| Releases                  | 8 in 2 months; breaking 2.0 on 2026-10-04                                              | regular releases (latest tag 4.18.1 on GitHub; 4.18.2 on NuGet)                                            |
+| Downloads                 | ~3.6K                                                                                  | ~289M (MimeKit ~345M)                                                                                      |
+| Maintainers               | NuGet owner `lettermint`; contributors `bjarn` (22 commits), dependabot, a release bot | NuGet owner `jstedfast`; 6.9K stars                                                                        |
+| Issues                    | 0 ever filed                                                                           | 8 open                                                                                                     |
+| Licence                   | MIT                                                                                    | MIT                                                                                                        |
+| Targets                   | net8.0, net10.0                                                                        | netstandard2.0/2.1, net4.6.2–4.8, net8.0, net10.0                                                          |
+| Transitive deps (net8/10) | none                                                                                   | MimeKit 4.18.2 (→ BouncyCastle.Cryptography 2.7.0, System.Security.Cryptography.Pkcs), System.Formats.Asn1 |
 
 Sources: [NuGet search API](https://azuresearch-usnc.nuget.org/query?q=packageid:lettermint), [Lettermint CHANGELOG](https://github.com/lettermint/lettermint-dotnet/blob/main/CHANGELOG.md), [releases](https://github.com/lettermint/lettermint-dotnet/releases), [Lettermint.csproj](https://github.com/lettermint/lettermint-dotnet/blob/main/src/Lettermint/Lettermint.csproj), `gh api repos/lettermint/lettermint-dotnet{,/contributors,/issues}`, [MailKit on NuGet](https://www.nuget.org/packages/MailKit), [MailKit 4.18.2 catalog entry](https://api.nuget.org/v3/catalog0/data/2026.10.23.12.33.27/mailkit.4.18.2.json), [MimeKit on NuGet](https://www.nuget.org/packages/MimeKit), `gh api repos/jstedfast/MailKit`.
 

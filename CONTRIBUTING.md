@@ -14,18 +14,20 @@ Instructions for local setup will be added once there is code to run.
 
 `main` must always be deployable. There are no other long-lived branches.
 
+`pnpm lint` runs the lint checks that CI will run: Prettier, ESLint, `tsc`, `dotnet format` and a Markdown link check. `pnpm format` fixes formatting. `pnpm install` also installs Git hooks that format and lint the staged files on every commit and check the commit message.
+
 ## Commits
 
 - **Follow [Conventional Commits](https://www.conventionalcommits.org/)** (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`, …). This applies to every commit, because they all end up on `main`. It's checked with commitlint.
-- **Keep commits atomic:** one logical change per commit, with a message that explains *why*. Clean up your branch history before opening the PR. Don't push "wip" or "fix lint" commits.
+- **Keep commits atomic:** one logical change per commit, with a message that explains _why_. Clean up your branch history before opening the PR. Don't push "wip" or "fix lint" commits.
 - **Keep GitHub's default merge commit message.** Tools ignore it, so changes don't appear twice in the changelog.
 
 ## Releases and environments
 
-| Environment | Deploys | When |
-|---|---|---|
-| Staging | the newest commit on `main` | automatically after every merge |
-| Production | the latest release (`vX.Y.Z`) | when the release-please PR is merged |
+| Environment | Deploys                       | When                                 |
+| ----------- | ----------------------------- | ------------------------------------ |
+| Staging     | the newest commit on `main`   | automatically after every merge      |
+| Production  | the latest release (`vX.Y.Z`) | when the release-please PR is merged |
 
 Both environments run the same image, built once in CI. Versions and the changelog are derived from the commits. See [ADR-0004](docs/adr/0004-promote-images-from-main-by-release-tag.md).
 

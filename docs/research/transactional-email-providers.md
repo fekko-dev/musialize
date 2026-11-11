@@ -21,7 +21,7 @@ Context: Musialize sends only transactional email: one-time sign-in codes for an
 
 - 300/month is enough for the pilot but not "comfortable". With ~40 Members and long-lived sessions, sign-ins plus resends should stay well under 300; frequent re-sign-ins would not. Beyond that, Starter is from €10/month for 10,000 emails ([pricing](https://lettermint.co/pricing)).
 - Free is 1 domain. A domain per Group later means Growth (up to 30 domains) or Pro (unlimited) ([pricing](https://lettermint.co/pricing)).
-- The compliance review must be done **before 2026-11-12**. Its duration is not stated in the docs (see §6). *Update 2026-11-06:* the form itself says most reviews finish within a few hours; our account was approved the same day.
+- The compliance review must be done **before 2026-11-12**. Its duration is not stated in the docs (see §6). _Update 2026-11-06:_ the form itself says most reviews finish within a few hours; our account was approved the same day.
 
 **Decision:** [ADR 0006](../adr/0006-lettermint-smtp-for-transactional-email.md).
 
@@ -31,19 +31,19 @@ Context: Musialize sends only transactional email: one-time sign-in codes for an
 
 Legend: ✅ yes, documented · 🟡 partial / caveat · ❌ no · ❓ unverified
 
-| | Lettermint | Mailjet | Scaleway TEM | Resend | Amazon SES (eu-central-1) | Brevo |
-|---|---|---|---|---|---|---|
-| **Free tier** | 300/mo, no daily cap | 6,000/mo, 200/day | 300/mo, then pay-as-you-go | 3,000/mo, 100/day ⚠️ | ❌ no permanent free tier; new AWS accounts get up to $200 credits (6-month free plan) ⚠️ | 300/day ⚠️ |
-| **Log / history retention (free)** | 28 days | ❓ ("Basic Statistics") | while domain is active; webhook data 15 days | 30 days | your own (event destinations) | ❓ "limited" |
-| **Domains on free tier** | 1 | ❓ | ❓ ⚠️ | 3 ⚠️ | unlimited identities | ❓ "limited" |
-| **Branding on free** | ❓ none mentioned | 🟡 Mailjet logo (scope ❓) | ✅ none (headers sent as-is) | ❓ none mentioned | ✅ none | 🟡 Brevo branding |
-| **EU data residency** | ✅ NL/DE, EU company | ✅ storage in DE/BE; 🟡 US parent (Sinch) | ✅ Paris only, EU company | ❌ sends from eu-west-1, but account data/logs stored in US | ✅ region-scoped | ❓ ⚠️ couldn't load |
-| **GDPR / DPA** | ✅ DPA in T&C | ✅ standard DPA (Sinch) | ✅ DPA; no non-EU transfers for TEM | ✅ DPA with SCCs, US processing | ✅ AWS DPA (not reviewed here) | ❓ |
-| **.NET** | ✅ official SDK + SMTP | ✅ official SDK + SMTP | 🟡 SMTP/REST only | 🟡 SDK under `resend` org, NuGet owner is an individual; SMTP | ✅ AWS SDK + SMTP | 🟡 REST (RestSharp example), SMTP |
-| **Multi-domain later** | 🟡 Growth: 30, Pro: unlimited | ❓ | ✅ per Project | 🟡 Pro: 10 | ✅ | ❓ |
-| **Logs / webhooks** | ✅ full delivery/bounce events | ✅ webhooks on free | 🟡 1 webhook per domain (Essential) | ✅ | 🟡 via SNS/EventBridge (more setup) | ❓ |
-| **Card to start** | ✅ not required | ✅ not required | ❓ ⚠️ | ❓ | ❌ required (AWS account) | ❌ required per pricing page ⚠️ |
-| **Setup effort** | DNS (4 records) + compliance form (hours ❓) | DNS (SPF/DKIM) ❓ | DNS (SPF, DKIM, MX recommended); new-account limits case-by-case | DNS; low | DNS (3 DKIM CNAMEs, custom MAIL FROM) + **sandbox exit, initial response within 96 h** | DNS + account ❓ |
+|                                    | Lettermint                                   | Mailjet                                   | Scaleway TEM                                                     | Resend                                                        | Amazon SES (eu-central-1)                                                                 | Brevo                             |
+| ---------------------------------- | -------------------------------------------- | ----------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | --------------------------------- |
+| **Free tier**                      | 300/mo, no daily cap                         | 6,000/mo, 200/day                         | 300/mo, then pay-as-you-go                                       | 3,000/mo, 100/day ⚠️                                          | ❌ no permanent free tier; new AWS accounts get up to $200 credits (6-month free plan) ⚠️ | 300/day ⚠️                        |
+| **Log / history retention (free)** | 28 days                                      | ❓ ("Basic Statistics")                   | while domain is active; webhook data 15 days                     | 30 days                                                       | your own (event destinations)                                                             | ❓ "limited"                      |
+| **Domains on free tier**           | 1                                            | ❓                                        | ❓ ⚠️                                                            | 3 ⚠️                                                          | unlimited identities                                                                      | ❓ "limited"                      |
+| **Branding on free**               | ❓ none mentioned                            | 🟡 Mailjet logo (scope ❓)                | ✅ none (headers sent as-is)                                     | ❓ none mentioned                                             | ✅ none                                                                                   | 🟡 Brevo branding                 |
+| **EU data residency**              | ✅ NL/DE, EU company                         | ✅ storage in DE/BE; 🟡 US parent (Sinch) | ✅ Paris only, EU company                                        | ❌ sends from eu-west-1, but account data/logs stored in US   | ✅ region-scoped                                                                          | ❓ ⚠️ couldn't load               |
+| **GDPR / DPA**                     | ✅ DPA in T&C                                | ✅ standard DPA (Sinch)                   | ✅ DPA; no non-EU transfers for TEM                              | ✅ DPA with SCCs, US processing                               | ✅ AWS DPA (not reviewed here)                                                            | ❓                                |
+| **.NET**                           | ✅ official SDK + SMTP                       | ✅ official SDK + SMTP                    | 🟡 SMTP/REST only                                                | 🟡 SDK under `resend` org, NuGet owner is an individual; SMTP | ✅ AWS SDK + SMTP                                                                         | 🟡 REST (RestSharp example), SMTP |
+| **Multi-domain later**             | 🟡 Growth: 30, Pro: unlimited                | ❓                                        | ✅ per Project                                                   | 🟡 Pro: 10                                                    | ✅                                                                                        | ❓                                |
+| **Logs / webhooks**                | ✅ full delivery/bounce events               | ✅ webhooks on free                       | 🟡 1 webhook per domain (Essential)                              | ✅                                                            | 🟡 via SNS/EventBridge (more setup)                                                       | ❓                                |
+| **Card to start**                  | ✅ not required                              | ✅ not required                           | ❓ ⚠️                                                            | ❓                                                            | ❌ required (AWS account)                                                                 | ❌ required per pricing page ⚠️   |
+| **Setup effort**                   | DNS (4 records) + compliance form (hours ❓) | DNS (SPF/DKIM) ❓                         | DNS (SPF, DKIM, MX recommended); new-account limits case-by-case | DNS; low                                                      | DNS (3 DKIM CNAMEs, custom MAIL FROM) + **sandbox exit, initial response within 96 h**    | DNS + account ❓                  |
 
 Sources per cell are in §3.
 
@@ -108,7 +108,7 @@ Sources per cell are in §3.
 services:
   mailpit:
     image: axllent/mailpit
-    ports: ["8025:8025"]          # UI + API; SMTP 1025 only needs to be reachable on the compose network
+    ports: ["8025:8025"] # UI + API; SMTP 1025 only needs to be reachable on the compose network
     environment:
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1

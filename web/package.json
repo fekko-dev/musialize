@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "typecheck": "tsc -b",
     "preview": "vite preview",
     "test": "vitest run",
     "generate:api-types": "openapi-typescript ../backend/openapi.json --output src/lib/api-schema.gen.ts"

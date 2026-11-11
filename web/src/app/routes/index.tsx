@@ -1,9 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { HealthCard } from '../../features/health/components/health-card'
+import { createFileRoute } from "@tanstack/react-router";
+import { HealthCard } from "../../features/health/components/health-card";
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute("/")({
   component: HomePage,
-})
+});
 
 function HomePage() {
   return (
@@ -11,5 +11,5 @@ function HomePage() {
       <h1>Musialize</h1>
       <HealthCard />
     </main>
-  )
+  );
 }

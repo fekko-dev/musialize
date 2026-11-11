@@ -2,20 +2,20 @@
 
 Musialize follows an iterative, incremental software development lifecycle. Each feature runs through a small cycle of its own, from idea to feedback. How far it goes through each phase depends on the size and risk of the feature: a small change can go straight to a single issue.
 
-| Phase | Step | How | Where the result lives |
-|---|---|---|---|
-| Plan and analyze | Discovery | Interview-style sessions that challenge assumptions | [vision](product/vision.md), [GLOSSARY.md](../GLOSSARY.md), [ADRs](adr/) |
-| | Requirements | A spec with problem, solution, user stories, decisions and what's out of scope | **One spec issue per feature** on GitHub |
-| Design | Journeys and screen map | Before a release's first feature: Mermaid flowcharts per journey, a screen map and a table mapping must-haves to screens | [journeys.md](product/journeys.md) |
-| | Feature flow | The feature's part of the journey, zoomed in, as Mermaid | In the spec issue |
-| | Wireframes | Figma, *Wireframes* page | Figma, linked from the spec issue |
-| | Domain model (ERD, UML) | Mermaid `erDiagram` / `classDiagram` | In the spec issue; a lasting domain model in `docs/` once it's stable |
-| | Visual design | Figma: *Design system* page (colours, typography, components), *Designs* page (screens) | Figma, linked from the spec issue |
-| Implement | Tickets | The spec split into vertical slices (database to screen, demonstrable on their own) with "blocked by" links | Sub-issues of the spec, on the GitHub Project board |
-| | Build | Test-driven, one ticket per branch and PR | See [CONTRIBUTING.md](../CONTRIBUTING.md) |
-| Test | Verify | Required CI checks, code review against the conventions and against the spec, a check on staging | PR and staging |
-| Deploy | Release | Merge the release PR | See [ADR-0004](adr/0004-promote-images-from-main-by-release-tag.md) |
-| Maintain and get feedback | Learn | Use at Review Meetings, triage incoming issues, a short retrospective after each feature | New issues, updated docs |
+| Phase                     | Step                    | How                                                                                                                      | Where the result lives                                                   |
+| ------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| Plan and analyze          | Discovery               | Interview-style sessions that challenge assumptions                                                                      | [vision](product/vision.md), [GLOSSARY.md](../GLOSSARY.md), [ADRs](adr/) |
+|                           | Requirements            | A spec with problem, solution, user stories, decisions and what's out of scope                                           | **One spec issue per feature** on GitHub                                 |
+| Design                    | Journeys and screen map | Before a release's first feature: Mermaid flowcharts per journey, a screen map and a table mapping must-haves to screens | [journeys.md](product/journeys.md)                                       |
+|                           | Feature flow            | The feature's part of the journey, zoomed in, as Mermaid                                                                 | In the spec issue                                                        |
+|                           | Wireframes              | Figma, _Wireframes_ page                                                                                                 | Figma, linked from the spec issue                                        |
+|                           | Domain model (ERD, UML) | Mermaid `erDiagram` / `classDiagram`                                                                                     | In the spec issue; a lasting domain model in `docs/` once it's stable    |
+|                           | Visual design           | Figma: _Design system_ page (colours, typography, components), _Designs_ page (screens)                                  | Figma, linked from the spec issue                                        |
+| Implement                 | Tickets                 | The spec split into vertical slices (database to screen, demonstrable on their own) with "blocked by" links              | Sub-issues of the spec, on the GitHub Project board                      |
+|                           | Build                   | Test-driven, one ticket per branch and PR                                                                                | See [CONTRIBUTING.md](../CONTRIBUTING.md)                                |
+| Test                      | Verify                  | Required CI checks, code review against the conventions and against the spec, a check on staging                         | PR and staging                                                           |
+| Deploy                    | Release                 | Merge the release PR                                                                                                     | See [ADR-0004](adr/0004-promote-images-from-main-by-release-tag.md)      |
+| Maintain and get feedback | Learn                   | Use at Review Meetings, triage incoming issues, a short retrospective after each feature                                 | New issues, updated docs                                                 |
 
 ### Order within a feature
 

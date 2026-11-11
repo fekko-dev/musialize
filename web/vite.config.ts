@@ -1,33 +1,33 @@
 /// <reference types="vitest/config" />
-import { tanstackRouter } from '@tanstack/router-plugin/vite'
-import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
 // Must match applicationUrl in backend/src/Musialize.Api/Properties/launchSettings.json.
-const backendUrl = 'http://localhost:5070'
+const backendUrl = "http://localhost:5070";
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     // The router plugin must come before the React plugin.
     tanstackRouter({
-      target: 'react',
-      routesDirectory: './src/app/routes',
-      generatedRouteTree: './src/app/routeTree.gen.ts',
+      target: "react",
+      routesDirectory: "./src/app/routes",
+      generatedRouteTree: "./src/app/routeTree.gen.ts",
       // Tests live next to their route in __tests__ folders, as in Bulletproof React.
-      routeFileIgnorePattern: '__tests__',
+      routeFileIgnorePattern: "__tests__",
       autoCodeSplitting: true,
     }),
     react(),
   ],
   server: {
     proxy: {
-      '/api': backendUrl,
-      '/health': backendUrl,
+      "/api": backendUrl,
+      "/health": backendUrl,
     },
   },
   test: {
-    environment: 'jsdom',
-    setupFiles: ['./src/testing/setup.ts'],
+    environment: "jsdom",
+    setupFiles: ["./src/testing/setup.ts"],
   },
-})
+});

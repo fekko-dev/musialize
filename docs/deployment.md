@@ -39,25 +39,36 @@ One PostgreSQL 18 service per environment (image `postgres:18`).
 
 One Application per environment.
 
-| Setting | Value | Why |
-|---|---|---|
-| Provider | Docker, image `ghcr.io/fekko-dev/musialize` | CI builds the image once; nothing is built on the server. CI sets the tag on every deploy. |
-| Cluster Settings → Registry Selection | the GHCR registry (Settings → Registry) | The image is private, so Dokploy needs a login to download it. |
-| Swarm Settings → Health Check | see below | Swarm keeps checking `/health`. A new version only counts as started once it's healthy. |
-| Swarm Settings → Update Config | see below | Start the new version first and stop the old one only once the new one is healthy (no downtime). Roll back if it never gets healthy. |
-| Volumes/Mounts → Bind Mount | host `/srv/musialize/<environment>/branding` → `/branding` | Branding files (logo, icons) live on the server and survive deploys. |
-| Domains | the environment's hostname, container port 8080, HTTPS on, certificate `letsencrypt` | The image listens on 8080. |
+| Setting                               | Value                                                                                | Why                                                                                                                                  |
+| ------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Provider                              | Docker, image `ghcr.io/fekko-dev/musialize`                                          | CI builds the image once; nothing is built on the server. CI sets the tag on every deploy.                                           |
+| Cluster Settings → Registry Selection | the GHCR registry (Settings → Registry)                                              | The image is private, so Dokploy needs a login to download it.                                                                       |
+| Swarm Settings → Health Check         | see below                                                                            | Swarm keeps checking `/health`. A new version only counts as started once it's healthy.                                              |
+| Swarm Settings → Update Config        | see below                                                                            | Start the new version first and stop the old one only once the new one is healthy (no downtime). Roll back if it never gets healthy. |
+| Volumes/Mounts → Bind Mount           | host `/srv/musialize/<environment>/branding` → `/branding`                           | Branding files (logo, icons) live on the server and survive deploys.                                                                 |
+| Domains                               | the environment's hostname, container port 8080, HTTPS on, certificate `letsencrypt` | The image listens on 8080.                                                                                                           |
 
 Health Check (durations are in nanoseconds, so `10000000000` is 10 seconds):
 
 ```json
-{"Test":["CMD","curl","-fsS","http://localhost:8080/health"],"Interval":10000000000,"Timeout":5000000000,"StartPeriod":30000000000,"Retries":3}
+{
+  "Test": ["CMD", "curl", "-fsS", "http://localhost:8080/health"],
+  "Interval": 10000000000,
+  "Timeout": 5000000000,
+  "StartPeriod": 30000000000,
+  "Retries": 3
+}
 ```
 
 Update Config:
 
 ```json
-{"Parallelism":1,"Delay":10000000000,"FailureAction":"rollback","Order":"start-first"}
+{
+  "Parallelism": 1,
+  "Delay": 10000000000,
+  "FailureAction": "rollback",
+  "Order": "start-first"
+}
 ```
 
 The Application's ID (the last part of its page address in Dokploy) is stored in GitHub, so CI knows which Application to deploy.
@@ -93,6 +104,7 @@ CI runs migrations over SSH before each deploy ([ADR-0009](adr/0009-migration-bu
   ```
 
   `restrict` turns off everything extra (terminal, tunnels). `command=` means that whatever CI asks for, only the migration script runs. CI's request (`<environment> <tag>`) reaches the script as `SSH_ORIGINAL_COMMAND`.
+
 - **The sudo rule** in `/etc/sudoers.d/musialize-deploy` lets `deploy` run only that script as root, which can read the root-only env file and start Docker. `deploy` itself has no Docker access, because being allowed to run Docker is effectively root.
 
   ```
@@ -107,17 +119,17 @@ Before anything is deployed, a one-off container on `dokploy-network` must reach
 
 ## GitHub
 
-| Name | Kind | Where | What it's for |
-|---|---|---|---|
-| `DOKPLOY_API_KEY` | secret | repository | Calls the Dokploy API: set the image tag, then deploy. |
-| `DOKPLOY_URL` | secret | repository | The Dokploy panel's address. A secret, because it would show the server's address in public logs. |
-| `DEPLOY_SSH_PRIVATE_KEY` | secret | repository | The `deploy` user's key. |
-| `DEPLOY_SSH_HOST` | secret | repository | Where CI connects over SSH (IP or DNS-only record). |
-| `DEPLOY_SSH_KNOWN_HOSTS` | secret | repository | The pinned host key. |
-| `RELEASE_APP_ID` | variable | repository | The release-please GitHub App's ID. |
-| `RELEASE_APP_PRIVATE_KEY` | secret | repository | The App's private key. With the ID, CI creates a short-lived token. |
-| `APP_URL` | secret | each environment | The environment's address, polled after a deploy until `/health` reports the deployed SHA. A secret, so the pilot's hostname stays out of public logs. |
-| `DOKPLOY_APPLICATION_ID` | variable | each environment | Which Dokploy Application to deploy. |
+| Name                      | Kind     | Where            | What it's for                                                                                                                                          |
+| ------------------------- | -------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `DOKPLOY_API_KEY`         | secret   | repository       | Calls the Dokploy API: set the image tag, then deploy.                                                                                                 |
+| `DOKPLOY_URL`             | secret   | repository       | The Dokploy panel's address. A secret, because it would show the server's address in public logs.                                                      |
+| `DEPLOY_SSH_PRIVATE_KEY`  | secret   | repository       | The `deploy` user's key.                                                                                                                               |
+| `DEPLOY_SSH_HOST`         | secret   | repository       | Where CI connects over SSH (IP or DNS-only record).                                                                                                    |
+| `DEPLOY_SSH_KNOWN_HOSTS`  | secret   | repository       | The pinned host key.                                                                                                                                   |
+| `RELEASE_APP_ID`          | variable | repository       | The release-please GitHub App's ID.                                                                                                                    |
+| `RELEASE_APP_PRIVATE_KEY` | secret   | repository       | The App's private key. With the ID, CI creates a short-lived token.                                                                                    |
+| `APP_URL`                 | secret   | each environment | The environment's address, polled after a deploy until `/health` reports the deployed SHA. A secret, so the pilot's hostname stays out of public logs. |
+| `DOKPLOY_APPLICATION_ID`  | variable | each environment | Which Dokploy Application to deploy.                                                                                                                   |
 
 The repository is public, and so are its Actions logs. GitHub hides secrets in logs but prints variables, so anything that reveals the server's address or the pilot's hostname is a secret. For the same reason, the GitHub Environments have no URL set: it would show on the public Deployments page.
 
