@@ -1,3 +1,7 @@
+## Contributing
+
+Branches, commits and pull requests follow `CONTRIBUTING.md`. Read it before your first commit.
+
 ## Agent skills
 
 ### Issue tracker
