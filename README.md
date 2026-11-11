@@ -21,6 +21,17 @@ pnpm lint      # the lint checks CI runs
 
 The other scripts are in [`package.json`](package.json).
 
+## Web app layout
+
+`web/src` follows a [Bulletproof React](https://github.com/alan2207/bulletproof-react)-style layout. Imports flow one way, shared → features → app, and features don't import each other; `pnpm lint` enforces this.
+
+- `app/`: routes, router and providers
+- `features/<name>/`: one folder per feature, with its own `api/`, `components/` and so on
+- shared: `components/` (shadcn/ui components in `components/ui/`), `lib/` (the generated API client, i18n), `locales/` (interface text), `types/`
+- `testing/`: test helpers
+
+Interface text goes through translation keys in [`web/src/locales/en.ts`](web/src/locales/en.ts); there are no barrel (`index.ts`) files.
+
 ## Further reading
 
 - [Development process](docs/process.md): how work goes from idea to release

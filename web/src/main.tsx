@@ -3,6 +3,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./app/app";
 import { createAppRouter } from "./app/router";
+import "./index.css";
 
 const queryClient = new QueryClient();
 const router = createAppRouter();
