@@ -95,7 +95,7 @@ As decided in [ADR-0009](adr/0009-migration-bundles-as-a-separate-deploy-step.md
 
 Both read their connection string from the setting `ConnectionStrings__Database` (Npgsql format: `Host=…;Port=5432;Database=…;Username=…;Password=…`).
 
-The role setup is committed in `deploy/db-roles.sql` (added with #14) and run once per database as the admin user, with the psql variables `migrator_password` and `app_password`. Running it again sets new passwords.
+The role setup is committed in [`deploy/db-roles.sql`](../deploy/db-roles.sql) and run once per database as the admin user, with the psql variables `migrator_password` and `app_password`. Running it again sets new passwords.
 
 ## The migration step
 
