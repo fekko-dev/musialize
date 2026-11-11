@@ -1,0 +1,70 @@
+# The checks the "Protect main" ruleset requires before a pull request can merge.
+# Each job runs the root pnpm scripts a developer runs locally (see CONTRIBUTING.md).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # commitlint needs every commit in the pull request.
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      # Installs the pnpm from packageManager and the Node.js from .nvmrc, then runs pnpm install.
+      - uses: pnpm/setup@v3
+        with:
+          cache: true
+          require-lockfile: true
+
+      - run: pnpm lint
+
+      - name: Check that the OpenAPI document and TypeScript types are up to date
+        run: |
+          pnpm generate:api
+          git diff --exit-code -- backend/openapi.json web/src/lib/api-schema.gen.ts \
+            || { echo "::error::Generated API files are out of date. Run 'pnpm generate:api' and commit the result."; exit 1; }
+
+      - name: Check commit messages
+        if: github.event_name == 'pull_request'
+        run: >
+          pnpm exec commitlint --verbose
+          --from ${{ github.event.pull_request.base.sha }}
+          --to ${{ github.event.pull_request.head.sha }}
+
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - uses: pnpm/setup@v3
+        with:
+          install: false
+      - run: pnpm test:backend
+
+  test-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/setup@v3
+        with:
+          cache: true
+          require-lockfile: true
+      - run: pnpm test:web
+      - run: pnpm build:web

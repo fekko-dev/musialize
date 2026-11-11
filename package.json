@@ -12,6 +12,7 @@
     "test": "pnpm test:backend && pnpm test:web",
     "test:backend": "dotnet test --solution backend/Musialize.slnx",
     "test:web": "pnpm --filter @musialize/web test",
+    "build:web": "pnpm --filter @musialize/web build",
     "generate:api": "dotnet build backend/src/Musialize.Api && pnpm --filter @musialize/web generate:api-types",
     "lint": "pnpm lint:format && pnpm lint:eslint && pnpm lint:types && pnpm lint:dotnet && pnpm lint:links",
     "lint:format": "prettier --check .",
