@@ -1,0 +1,57 @@
+# The production image with the same two database roles as staging and production
+# (ADR-0009), for the end-to-end tests. `pnpm test:e2e` starts and stops it.
+name: musialize-e2e
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: musialize
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "admin", "-d", "musialize"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+
+  # The same role setup and psql call that #6 runs on staging and production.
+  db-roles:
+    image: postgres:18
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: admin
+    volumes:
+      - ./deploy/db-roles.sql:/db-roles.sql:ro
+    command: >
+      psql -h postgres -U admin -d musialize -v ON_ERROR_STOP=1
+      -v migrator_password=migrator -v app_password=app -f /db-roles.sql
+
+  migrate:
+    image: ${MUSIALIZE_IMAGE:-musialize:e2e}
+    depends_on:
+      db-roles:
+        condition: service_completed_successfully
+    environment:
+      ConnectionStrings__Database: "Host=postgres;Port=5432;Database=musialize;Username=musialize_migrator;Password=migrator"
+    command: ["./efbundle"]
+
+  app:
+    image: ${MUSIALIZE_IMAGE:-musialize:e2e}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      ConnectionStrings__Database: "Host=postgres;Port=5432;Database=musialize;Username=musialize_app;Password=app"
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+
+  mailpit:
+    image: axllent/mailpit:v1.33

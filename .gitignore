@@ -35,3 +35,7 @@ Thumbs.db
 
 # The built SPA, copied in by the Dockerfile
 backend/src/Musialize.Api/wwwroot/
+
+# Playwright
+test-results/
+playwright-report/
