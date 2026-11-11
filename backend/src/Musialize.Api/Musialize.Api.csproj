@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <!-- The short commit SHA, passed in at build time (-p:AppVersion=<sha>); "dev" for local builds. -->
+    <AppVersion Condition="'$(AppVersion)' == ''">dev</AppVersion>
+    <!-- Generate the OpenAPI document on every build; it is committed and the web app's types are generated from it. -->
+    <OpenApiDocumentsDirectory>$(MSBuildThisFileDirectory)../..</OpenApiDocumentsDirectory>
+    <OpenApiGenerateDocumentsOptions>--file-name openapi</OpenApiGenerateDocumentsOptions>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Scalar.AspNetCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyMetadata Include="AppVersion" Value="$(AppVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Musialize.Application\Musialize.Application.csproj" />
+    <ProjectReference Include="..\Musialize.Infrastructure\Musialize.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

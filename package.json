@@ -1,0 +1,19 @@
+{
+  "name": "musialize",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "packageManager": "pnpm@12.18.0",
+  "engines": {
+    "node": ">=26 <27"
+  },
+  "scripts": {
+    "dev": "concurrently --names api,web --prefix-colors blue,magenta --kill-others \"dotnet watch --project backend/src/Musialize.Api --non-interactive\" \"pnpm --filter @musialize/web dev\"",
+    "test": "pnpm test:backend && pnpm test:web",
+    "test:backend": "dotnet test --solution backend/Musialize.slnx",
+    "test:web": "pnpm --filter @musialize/web test",
+    "generate:api": "dotnet build backend/src/Musialize.Api && pnpm --filter @musialize/web generate:api-types"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.7"
+  }
+}

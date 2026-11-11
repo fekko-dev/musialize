@@ -1,0 +1,58 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Musialize.Api | v1",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "operationId": "GetHealth",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "required": [
+          "status",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/HealthStatus"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "HealthStatus": {
+        "enum": [
+          "healthy"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Health"
+    }
+  ]
+}
