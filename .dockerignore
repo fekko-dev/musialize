@@ -1,0 +1,12 @@
+# Only what the Dockerfile copies matters; keep local build output and secrets out.
+**/node_modules
+**/bin
+**/obj
+**/dist
+**/TestResults
+backend/src/Musialize.Api/wwwroot
+.git
+.claude
+.local
+.env
+.env.*

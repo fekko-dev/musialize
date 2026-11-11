@@ -32,3 +32,6 @@ npm-debug.log*
 !.vscode/settings.json
 .DS_Store
 Thumbs.db
+
+# The built SPA, copied in by the Dockerfile
+backend/src/Musialize.Api/wwwroot/
