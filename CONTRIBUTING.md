@@ -2,7 +2,7 @@
 
 Before you start, read the [product vision](docs/product/vision.md), the [glossary](GLOSSARY.md), the [architecture decisions](docs/adr/) and the [development process](docs/process.md). Use the glossary's terms in code, issues and commits.
 
-Instructions for local setup will be added once there is code to run.
+To set up and run Musialize locally, see the [README](README.md).
 
 ## Workflow
 
@@ -41,6 +41,7 @@ A migration runs before the new version starts, and for a few seconds the runnin
 
 ## Documentation
 
+- **The README is the front door.** A pull request that changes setup, environment variables, run or test commands, folder layout or deployment updates [README.md](README.md) in the same pull request.
 - **Domain terms** that are added or changed go into [GLOSSARY.md](GLOSSARY.md).
 - **Decisions** that are hard to reverse, surprising, and the result of a real trade-off get an ADR in [docs/adr/](docs/adr/).
 
