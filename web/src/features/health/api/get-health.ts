@@ -1,5 +1,5 @@
-import { api } from '../../../lib/api-client'
+import { api } from "../../../lib/api-client";
 
 export function useHealth() {
-  return api.useQuery('get', '/health')
+  return api.useQuery("get", "/health");
 }

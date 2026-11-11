@@ -8,8 +8,8 @@ Domain terms in **bold** or with capitals are defined in [GLOSSARY.md](../../GLO
 
 Musialize has two goals, and they divide the work between them:
 
-1. **Be genuinely useful to a real group of musicians.** This decides *what* gets built.
-2. **Show professional software engineering.** This decides *how* it gets built: tests, CI/CD, ADRs, a clean architecture. It never justifies infrastructure the product doesn't need.
+1. **Be genuinely useful to a real group of musicians.** This decides _what_ gets built.
+2. **Show professional software engineering.** This decides _how_ it gets built: tests, CI/CD, ADRs, a clean architecture. It never justifies infrastructure the product doesn't need.
 
 ## The problem
 
@@ -50,6 +50,7 @@ The journeys through these moments, and the screens they need, are mapped in [jo
 Musialize **is** the place for Songs, Parts, Line-ups, Comments and decisions about them.
 
 Musialize **is not**:
+
 - **A chat.** The group chat stays for everything social.
 - **File storage.** Sheet music, chord charts and audio stay in Google Drive and similar services; Songs only link to them.
 - **A playlist or streaming tool.** Spotify and YouTube Music playlists keep handling listening.
@@ -60,6 +61,7 @@ Musialize **is not**:
 The goal is that the pilot Group can use Musialize in that meeting, or at least that it can be demonstrated with real Songs. Detailed tickets live on the GitHub Project board.
 
 **Must have**
+
 - Sign-in with an email one-time code.
 - Claiming through an invite link. Someone whose name isn't listed adds themselves.
 - A Members screen for Organizers: add Unclaimed Members, and undo or move a Claim. Members can't switch names themselves.

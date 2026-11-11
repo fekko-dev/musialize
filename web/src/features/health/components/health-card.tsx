@@ -1,11 +1,11 @@
-import type { components } from '../../../lib/api-schema.gen'
-import { useHealth } from '../api/get-health'
+import type { components } from "../../../lib/api-schema.gen";
+import { useHealth } from "../api/get-health";
 
-type HealthStatus = components['schemas']['HealthStatus']
+type HealthStatus = components["schemas"]["HealthStatus"];
 
 const statusLabels: Record<HealthStatus, string> = {
-  healthy: 'Healthy',
-}
+  healthy: "Healthy",
+};
 
 export function HealthCard() {
   return (
@@ -13,18 +13,18 @@ export function HealthCard() {
       <h2 id="health-card-title">Server health</h2>
       <HealthCardContent />
     </section>
-  )
+  );
 }
 
 function HealthCardContent() {
-  const health = useHealth()
+  const health = useHealth();
 
   if (health.isPending) {
-    return <p>Checking…</p>
+    return <p>Checking…</p>;
   }
 
   if (health.isError) {
-    return <p role="alert">The server can't be reached. Try again later.</p>
+    return <p role="alert">The server can't be reached. Try again later.</p>;
   }
 
   return (
@@ -34,5 +34,5 @@ function HealthCardContent() {
       <dt>Version</dt>
       <dd>{health.data.version}</dd>
     </dl>
-  )
+  );
 }

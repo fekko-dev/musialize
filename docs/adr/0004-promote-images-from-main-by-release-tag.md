@@ -1,6 +1,6 @@
 # Promote one image from main to production through release tags
 
-There is one long-lived branch, `main`, and no environment branches. CI builds a Docker image once per commit on `main`, tagged with the commit SHA, and pushes it to GitHub Container Registry. Staging automatically deploys every new image. Production only deploys when a release is created, by merging the release-please PR, and it deploys the *same* image that ran on staging rather than a rebuild. We chose this over environment branches (`develop` → `staging` → `main`) so that production always runs an image that was tested on staging, without merging between environment branches, and so that nothing goes live by surprise while the app is used during a Review Meeting.
+There is one long-lived branch, `main`, and no environment branches. CI builds a Docker image once per commit on `main`, tagged with the commit SHA, and pushes it to GitHub Container Registry. Staging automatically deploys every new image. Production only deploys when a release is created, by merging the release-please PR, and it deploys the _same_ image that ran on staging rather than a rebuild. We chose this over environment branches (`develop` → `staging` → `main`) so that production always runs an image that was tested on staging, without merging between environment branches, and so that nothing goes live by surprise while the app is used during a Review Meeting.
 
 ## Consequences
 
