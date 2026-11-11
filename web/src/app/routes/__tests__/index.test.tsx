@@ -1,9 +1,9 @@
 import { screen } from "@testing-library/react";
 import { delay, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
-import { http } from "../../../testing/http";
-import { renderApp } from "../../../testing/render-app";
-import { server } from "../../../testing/server";
+import { http } from "@/testing/http";
+import { renderApp } from "@/testing/render-app";
+import { server } from "@/testing/server";
 
 describe("home page", () => {
   it("shows that it's checking while the health request is pending", async () => {
