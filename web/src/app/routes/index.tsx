@@ -1,14 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { HealthCard } from "../../features/health/components/health-card";
+import { useTranslation } from "react-i18next";
+import { HealthCard } from "@/features/health/components/health-card";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
 function HomePage() {
+  const { t } = useTranslation();
+
   return (
-    <main>
-      <h1>Musialize</h1>
+    <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 py-8">
+      <h1 className="font-heading text-2xl font-semibold">{t("app.name")}</h1>
       <HealthCard />
     </main>
   );
