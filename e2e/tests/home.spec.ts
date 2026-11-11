@@ -46,5 +46,9 @@ function latestMigration(): string {
   )
     .filter((file) => /^\d{14}_\w+\.cs$/.test(file))
     .sort();
-  return migrations.at(-1)!.replace(/\.cs$/, "");
+  const latest = migrations.at(-1);
+  if (!latest) {
+    throw new Error("Found no migrations in the Infrastructure project.");
+  }
+  return latest.replace(/\.cs$/, "");
 }
