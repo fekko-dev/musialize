@@ -1,0 +1,4 @@
+# Generated files
+pnpm-lock.yaml
+backend/openapi.json
+**/*.gen.ts
