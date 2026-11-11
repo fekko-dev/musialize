@@ -9,12 +9,13 @@ Musialize is a web app for Groups of musicians who choose Songs together and for
 - **Node.js**, at the version in [`.nvmrc`](.nvmrc)
 - **pnpm**, at the version in `packageManager` in [`package.json`](package.json)
 - **.NET SDK**, at the version in [`global.json`](global.json)
+- **Docker**, running. `pnpm dev` starts PostgreSQL and Mailpit from [`compose.dev.yaml`](compose.dev.yaml), and the backend tests start their own PostgreSQL with Testcontainers.
 
 ## Run, test and lint
 
 ```bash
 pnpm install   # dependencies and Git hooks
-pnpm dev       # API and web app together, with hot reload
+pnpm dev       # local PostgreSQL and Mailpit, migrations, then API and web app with hot reload
 pnpm test      # backend and web tests
 pnpm lint      # the lint checks CI runs
 ```

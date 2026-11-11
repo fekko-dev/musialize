@@ -8,7 +8,9 @@
     "node": ">=26 <27"
   },
   "scripts": {
-    "dev": "concurrently --names api,web --prefix-colors blue,magenta --kill-others \"dotnet watch --project backend/src/Musialize.Api --non-interactive\" \"pnpm --filter @musialize/web dev\"",
+    "dev": "pnpm dev:deps && pnpm db:migrate && concurrently --names api,web --prefix-colors blue,magenta --kill-others \"dotnet watch --project backend/src/Musialize.Api --non-interactive\" \"pnpm --filter @musialize/web dev\"",
+    "dev:deps": "docker compose -f compose.dev.yaml up --detach --wait",
+    "db:migrate": "dotnet tool restore && dotnet ef database update --project backend/src/Musialize.Infrastructure --startup-project backend/src/Musialize.Api",
     "test": "pnpm test:backend && pnpm test:web",
     "test:backend": "dotnet test --solution backend/Musialize.slnx",
     "test:web": "pnpm --filter @musialize/web test",

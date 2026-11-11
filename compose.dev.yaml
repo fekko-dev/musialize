@@ -1,0 +1,29 @@
+# Local dependencies for `pnpm dev`. Not used in staging or production.
+name: musialize-dev
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: musialize
+      POSTGRES_USER: musialize
+      POSTGRES_PASSWORD: musialize
+    ports:
+      - "5432:5432"
+    volumes:
+      # PostgreSQL 18 images keep their data in a versioned folder under /var/lib/postgresql.
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "musialize", "-d", "musialize"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+
+  mailpit:
+    image: axllent/mailpit:v1.33
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # web UI for reading sent email
+
+volumes:
+  postgres-data:
