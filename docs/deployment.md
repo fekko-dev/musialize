@@ -118,7 +118,16 @@ CI runs migrations over SSH before each deploy ([ADR-0009](adr/0009-migration-bu
   deploy ALL=(root) NOPASSWD: /usr/local/sbin/musialize-migrate
   ```
 
-- **The script** (`deploy/musialize-migrate`, added once #14 fixes the bundle's path in the image, installed as `/usr/local/sbin/musialize-migrate`) accepts only `staging` or `production` plus a `sha-…` or `v…` tag. It runs the image's migration bundle in a one-off container on `dokploy-network`, with that environment's env file, and passes the output and exit code back to CI.
+- **The script** (`deploy/musialize-migrate`, installed as `/usr/local/sbin/musialize-migrate`) accepts only `staging` or `production` plus a `sha-…` or `v…` tag. It runs the image's migration bundle in a one-off container on `dokploy-network`, with that environment's env file, and passes the output and exit code back to CI.
+
+  The bundle is `/app/efbundle` in the image, and the image's working directory is `/app`, so the container runs it as:
+
+  ```bash
+  docker run --rm --network dokploy-network --env-file /etc/musialize/<environment>.env ghcr.io/fekko-dev/musialize:<tag> ./efbundle
+  ```
+
+  The env file sets `ConnectionStrings__Database` to the migrator's connection string.
+
 - **GHCR login:** the server's root user is logged in to `ghcr.io` with a read-only token (`read:packages`), so the migration container can download the private image.
 
 Before anything is deployed, a one-off container on `dokploy-network` must reach each database: checked as the admin user during setup, and again as the migrator once the roles exist. There is no fallback to migrating at app startup unless its trade-offs are written down and approved.

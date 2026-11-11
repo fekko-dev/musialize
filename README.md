@@ -10,15 +10,22 @@ Musialize is a web app for Groups of musicians who choose Songs together and for
 - **pnpm**, at the version in `packageManager` in [`package.json`](package.json)
 - **.NET SDK**, at the version in [`global.json`](global.json)
 - **Docker**, running. `pnpm dev` starts PostgreSQL and Mailpit from [`compose.dev.yaml`](compose.dev.yaml), and the backend tests start their own PostgreSQL with Testcontainers.
+- **Playwright's Chromium**, for the end-to-end tests. Install it once, and again after Playwright is updated:
+
+  ```bash
+  pnpm --filter @musialize/e2e exec playwright install chromium
+  ```
 
 ## Run, test and lint
 
 ```bash
 pnpm install   # dependencies and Git hooks
 pnpm dev       # local PostgreSQL and Mailpit, migrations, then API and web app with hot reload
-pnpm test      # backend and web tests
+pnpm test      # backend, web and end-to-end tests
 pnpm lint      # the lint checks CI runs
 ```
+
+`pnpm test:e2e` builds the production image from the [`Dockerfile`](Dockerfile), starts it with [`compose.e2e.yaml`](compose.e2e.yaml) on port 8080, runs the [Playwright tests](e2e/tests) on desktop Chromium and a phone viewport, and stops everything again. To test an image you already have, set `MUSIALIZE_IMAGE` to it and `APP_VERSION` to the short SHA it was built with.
 
 The other scripts are in [`package.json`](package.json).
 
