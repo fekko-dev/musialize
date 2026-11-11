@@ -12,6 +12,7 @@ export const en = {
     versionLabel: "Version",
     status: {
       healthy: "Healthy",
+      unhealthy: "Unhealthy",
     },
   },
 } as const;

@@ -21,7 +21,11 @@ describe("home page", () => {
   it("shows the status and version when the server is healthy", async () => {
     server.use(
       http.get("/health", ({ response }) =>
-        response(200).json({ status: "healthy", version: "abc1234" }),
+        response(200).json({
+          status: "healthy",
+          version: "abc1234",
+          databaseMigration: "20261111120000_InitialCreate",
+        }),
       ),
     );
 

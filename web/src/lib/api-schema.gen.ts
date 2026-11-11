@@ -27,9 +27,10 @@ export interface components {
         HealthResponse: {
             status: components["schemas"]["HealthStatus"];
             version: string;
+            databaseMigration: null | string;
         };
         /** @enum {unknown} */
-        HealthStatus: "healthy";
+        HealthStatus: "healthy" | "unhealthy";
     };
     responses: never;
     parameters: never;
@@ -50,6 +51,15 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

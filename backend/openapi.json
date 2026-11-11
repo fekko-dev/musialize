@@ -21,6 +21,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -31,7 +41,8 @@
       "HealthResponse": {
         "required": [
           "status",
-          "version"
+          "version",
+          "databaseMigration"
         ],
         "type": "object",
         "properties": {
@@ -40,12 +51,19 @@
           },
           "version": {
             "type": "string"
+          },
+          "databaseMigration": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
       "HealthStatus": {
         "enum": [
-          "healthy"
+          "healthy",
+          "unhealthy"
         ]
       }
     }
