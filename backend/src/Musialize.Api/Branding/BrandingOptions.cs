@@ -34,7 +34,7 @@ internal sealed class BrandingOptions
     public string ShortName { get; set; } = "Musialize";
 
     /// <summary>The installed app's status and title bar on Android. Used in the manifest only.</summary>
-    [RegularExpression("^#[0-9a-fA-F]{6}$", ErrorMessage = "Use a colour like #ffffff.")]
+    [RegularExpression("^#[0-9a-fA-F]{6}$", ErrorMessage = "Use a six-digit hex colour like #ffffff.")]
     public string ThemeColor { get; set; } = "#ffffff";
 
     /// <summary>The folder with the <see cref="AssetFiles"/>, as set. Read <see cref="ResolvedAssetsPath"/> instead.</summary>

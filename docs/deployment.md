@@ -83,12 +83,12 @@ Log levels come from the `Serilog` configuration section, so they change with an
 
 Each environment shows its Group's name and logo, set in the Application's environment, so the pilot's branding never lives in the repository. Without any settings the app is "Musialize" with its own logo.
 
-| Setting                | Default         | What it does                                                                                                              |
-| ---------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `Branding__AppName`    | `Musialize`     | The name in the header, the browser tab and the installed app. Required: it can't be empty.                               |
-| `Branding__ShortName`  | `Musialize`     | The name under the icon on a home screen, where a long name gets cut off. Required; keep it under ~12 characters.         |
-| `Branding__ThemeColor` | `#ffffff`       | The installed app's status and title bar on Android. Used in the manifest only. A colour as `#rrggbb`, such as `#ffffff`. |
-| `Branding__AssetsPath` | Musialize's own | The folder with the logo and icons below. On staging and production: `/branding`, the mount.                              |
+| Setting                | Default         | What it does                                                                                                                           |
+| ---------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `Branding__AppName`    | `Musialize`     | The name in the header, the browser tab and the installed app. Required: it can't be empty.                                            |
+| `Branding__ShortName`  | `Musialize`     | The name under the icon on a home screen, where a long name gets cut off. Required; keep it under ~12 characters.                      |
+| `Branding__ThemeColor` | `#ffffff`       | The installed app's status and title bar on Android. Used in the manifest only. A six-digit hex colour (`#rrggbb`), such as `#ffffff`. |
+| `Branding__AssetsPath` | Musialize's own | The folder with the logo and icons below. On staging and production: `/branding`, the mount.                                           |
 
 The app serves the files at `/branding/<file>` and builds `/manifest.webmanifest` from these settings, which "Add to home screen" reads. It **doesn't start when a setting is invalid or the folder misses a file**, and logs which, so a typo or a broken mount never replaces a working version. A replaced logo or icon shows up on the next page load without a redeploy, but a phone keeps the icon it installed with until the app is added to the home screen again.
 
