@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Diagnostics;
+using Musialize.Api.Branding;
 using Musialize.Api.Health;
 using Musialize.Application;
 using Musialize.Infrastructure;
@@ -37,6 +38,7 @@ try
     // For request types declared in Api; Application registers its own.
     builder.Services.AddValidation();
     builder.Services.AddInfrastructure();
+    builder.Services.AddBranding();
     builder.Services.ConfigureHttpJsonOptions(options =>
         options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)));
 
@@ -77,6 +79,8 @@ try
     }
 
     app.MapHealthEndpoints();
+    var api = app.MapGroup("/api");
+    api.MapGroup("/branding").MapBrandingApi().WithTags("Branding");
 
     // The built SPA, which only the image has (the Dockerfile copies it into wwwroot). In
     // development Vite serves it instead.
