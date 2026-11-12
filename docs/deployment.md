@@ -162,6 +162,43 @@ CI runs migrations over SSH before each deploy ([ADR-0009](adr/0009-migration-bu
 
 Before anything is deployed, a one-off container on `dokploy-network` must reach each database: checked as the admin user during setup, and again as the migrator once the roles exist. There is no fallback to migrating at app startup unless its trade-offs are written down and approved.
 
+## Deploying to staging
+
+Every push to `main` deploys to staging, in the `deploy-staging` job of [`ci.yml`](../.github/workflows/ci.yml), once all checks have passed:
+
+```mermaid
+sequenceDiagram
+    participant CI as deploy-staging
+    participant GHCR
+    participant Server as Server (SSH)
+    participant Dokploy
+    participant App as Staging
+    CI->>GHCR: push the tested image as sha-<commit>
+    CI->>Server: "staging sha-<commit>"
+    Server-->>CI: migrations applied (or none pending)
+    CI->>Dokploy: application.update (image tag)
+    CI->>Dokploy: application.deploy
+    loop every 10 s, at most 10 min
+        CI->>App: GET /health
+    end
+    App-->>CI: healthy, version = <commit>
+```
+
+1. **Push:** the image that `test-e2e` tested is pushed to `ghcr.io/fekko-dev/musialize:sha-<short SHA>`, without rebuilding. Only these immutable tags exist, never `latest`. CI pushes with its own `GITHUB_TOKEN`, so the `musialize` package must give this repository Write access (package settings → Manage Actions access).
+2. **Migrate:** CI runs [the migration step](#the-migration-step) over SSH. If a migration fails, the job stops here and nothing is deployed.
+3. **Deploy:** CI sets the image tag with `application.update`, then starts the deploy with `application.deploy`. It doesn't use `application.saveDockerProvider`, because that call requires the registry username and password and overwrites the stored ones; `application.update` with only `dockerImage` leaves them as they are.
+4. **Confirm:** Dokploy deploys in the background, so CI polls staging's `/health` until it reports `healthy` with the commit's short SHA, and fails after 10 minutes. If the new version never gets healthy, Swarm keeps the old one running and the job fails.
+
+Only one staging deploy runs at a time. Pushes to `main` queue in order, and a waiting deploy is replaced by a newer one, so an older commit never deploys after a newer one.
+
+**The migration step's output** in the job log names each migration it applied (`Applying migration '…'`), or says `No migrations were applied. The database is already up to date.` CI turns the bundle's JSON log into plain messages and leaves out the SQL of successful commands. On an empty database, the first line is a `Failed executing DbCommand` for the migrations history table: EF Core checks for the table before creating it, and this is harmless.
+
+### Rolling back
+
+Deploy an earlier image: in Dokploy, open the Application's Provider, set the image to an earlier `ghcr.io/fekko-dev/musialize:sha-…` tag (the commit SHAs are in the `deploy-staging` logs and on `main`), save and deploy. Don't migrate down and don't rely on `Down()`: the schema stays as it is, and the [migration rules](../CONTRIBUTING.md#database-migrations) make sure the earlier version works with it. On staging, a rollback lasts until the next merge to `main` deploys the newest commit again.
+
+**Does Dokploy's built-in rollback work for images built in CI?** (the open question in [ADR-0004](adr/0004-promote-images-from-main-by-release-tag.md)) Not without extra setup, so it isn't used. In Dokploy's source, its rollbacks point to images that Dokploy tags itself during a deploy (`<appName>:v<n>`) and keeps in a separate rollback registry, which our Applications don't have. This was read in the source, not tried on the server. It isn't needed: every image CI built is already kept in GHCR under its own tag, so deploying an earlier tag does the same job without another registry.
+
 ## GitHub
 
 | Name                      | Kind     | Where            | What it's for                                                                                                                                          |
