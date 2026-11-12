@@ -1,7 +1,9 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Diagnostics;
 using Musialize.Api.Health;
+using Musialize.Application;
 using Musialize.Infrastructure;
 using Scalar.AspNetCore;
 using Serilog;
@@ -26,6 +28,9 @@ builder.Services.AddSerilog((services, logger) =>
         .Enrich.FromLogContext(),
     // Each app keeps its own logger instead of the global Log.Logger, so test apps don't share one (ADR-0011).
     preserveStaticLogger: true);
+builder.Services.AddApplication();
+// For request types declared in Api; Application registers its own.
+builder.Services.AddValidation();
 builder.Services.AddInfrastructure();
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)));
@@ -47,7 +52,16 @@ app.UseSerilogRequestLogging(options =>
         _ => LogEventLevel.Information,
     };
 });
-app.UseExceptionHandler();
+app.UseExceptionHandler(new ExceptionHandlerOptions
+{
+    // An unreadable request body is the client's error: it keeps its 400 and isn't logged.
+    StatusCodeSelector = exception => exception is BadHttpRequestException badRequest
+        ? badRequest.StatusCode
+        : StatusCodes.Status500InternalServerError,
+    // Setting this replaces .NET 10's default of skipping exceptions an IExceptionHandler handled, so keep that.
+    SuppressDiagnosticsCallback = context => context.Exception is BadHttpRequestException
+        || context.ExceptionHandledBy == ExceptionHandledType.ExceptionHandlerService,
+});
 // Gives bodyless error responses, such as a 404, a ProblemDetails body.
 app.UseStatusCodePages();
 
