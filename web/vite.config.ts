@@ -30,6 +30,8 @@ export default defineConfig({
     proxy: {
       "/api": backendUrl,
       "/health": backendUrl,
+      "/branding": backendUrl,
+      "/manifest.webmanifest": backendUrl,
     },
   },
   test: {

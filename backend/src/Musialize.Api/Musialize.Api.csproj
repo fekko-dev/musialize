@@ -24,6 +24,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Musialize's own logo and icons, used when Branding__AssetsPath is unset. -->
+    <None Update="Branding\Defaults\**" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <AssemblyMetadata Include="AppVersion" Value="$(AppVersion)" />
   </ItemGroup>
 

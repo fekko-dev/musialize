@@ -79,6 +79,36 @@ The app writes compact JSON logs to the console through Serilog ([ADR-0011](adr/
 
 Log levels come from the `Serilog` configuration section, so they change with an environment variable in the Application's environment and a redeploy, without a new image. For example, `Serilog__MinimumLevel__Override__Musialize=Debug` shows Musialize's own debug entries, and `Serilog__MinimumLevel__Override__Serilog.AspNetCore.RequestLoggingMiddleware=Warning` turns off the request entries. Set them in Dokploy's Environment tab: Docker accepts the dots in these names, but a shell's `export` rejects them.
 
+### Branding
+
+Each environment shows its Group's name and logo, set in the Application's environment, so the pilot's branding never lives in the repository. Without any settings the app is "Musialize" with its own logo.
+
+| Setting                | Default         | What it does                                                                                                                           |
+| ---------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `Branding__AppName`    | `Musialize`     | The name in the header, the browser tab and the installed app. Required: it can't be empty.                                            |
+| `Branding__ShortName`  | `Musialize`     | The name under the icon on a home screen, where a long name gets cut off. Required; keep it under ~12 characters.                      |
+| `Branding__ThemeColor` | `#ffffff`       | The installed app's status and title bar on Android. Used in the manifest only. A six-digit hex colour (`#rrggbb`), such as `#ffffff`. |
+| `Branding__AssetsPath` | Musialize's own | The folder with the logo and icons below. On staging and production: `/branding`, the mount.                                           |
+
+The app serves the files at `/branding/<file>` and builds `/manifest.webmanifest` from these settings, which "Add to home screen" reads. It **doesn't start when a setting is invalid or the folder misses a file**, and logs which, so a typo or a broken mount never replaces a working version. A replaced logo or icon shows up on the next page load without a redeploy, but a phone keeps the icon it installed with until the app is added to the home screen again.
+
+The logo and icons sit in one folder with fixed filenames, on the server under the Application's branding mount:
+
+| File                    | Used for                                                  |
+| ----------------------- | --------------------------------------------------------- |
+| `logo.svg`              | the header and the browser tab                            |
+| `favicon.ico`           | the browser tab in browsers without SVG favicons          |
+| `icon-192.png`          | the home screen on Android                                |
+| `icon-512.png`          | Android's splash screen and app switcher                  |
+| `icon-maskable-512.png` | Android launchers that crop icons to a circle or squircle |
+| `apple-touch-icon.png`  | the home screen on iPhone (180×180, no transparency)      |
+
+You provide one file, the logo: a square SVG (text converted to outlines) or a square PNG of at least 512×512. The other five files are generated from it:
+
+1. Put `logo.svg` (or `logo.png`) in an empty folder outside the repository, or in the untracked `.local/`.
+2. Run `pnpm branding:icons <folder>/logo.svg` (or `logo.png`). The icons appear next to the logo ([`pwa-assets.config.ts`](../pwa-assets.config.ts) sets the sizes, and gives the maskable and Apple icons a white background with room around the logo). A PNG is also wrapped in a `logo.svg`, because the app always serves `logo.svg`.
+3. Copy the six files to `/srv/musialize/<environment>/branding` on the server.
+
 ## DNS and TLS
 
 - Each environment has a single-level subdomain of `fekko.dev` (`<name>.fekko.dev`), so Cloudflare's free certificate covers it.

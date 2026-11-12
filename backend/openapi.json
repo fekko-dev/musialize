@@ -34,10 +34,45 @@
           }
         }
       }
+    },
+    "/api/branding": {
+      "get": {
+        "tags": [
+          "Branding"
+        ],
+        "operationId": "GetBranding",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrandingResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "BrandingResponse": {
+        "required": [
+          "appName",
+          "shortName"
+        ],
+        "type": "object",
+        "properties": {
+          "appName": {
+            "type": "string"
+          },
+          "shortName": {
+            "type": "string"
+          }
+        }
+      },
       "HealthResponse": {
         "required": [
           "status",
@@ -71,6 +106,9 @@
   "tags": [
     {
       "name": "Health"
+    },
+    {
+      "name": "Branding"
     }
   ]
 }
