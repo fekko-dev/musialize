@@ -126,13 +126,9 @@ jobs:
     needs: [lint, test-backend, test-web, image, test-e2e]
     runs-on: ubuntu-latest
     environment: staging
-    # One deploy at a time. Runs on main already queue in commit order (see the workflow's
-    # concurrency), and a queued older deploy is replaced by a newer one, never run after it.
-    concurrency:
-      group: deploy-staging
-      cancel-in-progress: false
+    # One deploy at a time comes from the workflow's concurrency: runs on main queue in commit
+    # order, and a waiting older run is replaced by a newer one, so it never deploys after it.
     permissions:
-      contents: read
       packages: write
     env:
       IMAGE: ghcr.io/fekko-dev/musialize
