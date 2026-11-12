@@ -18,7 +18,7 @@ Endpoints call their handler directly. There is no mediator library.
 
 ## Not decided here
 
-How handlers reach the database is left to the first domain feature (Songs), so it is chosen with real code in view. The two candidates are an `IAppDbContext` in Application that exposes EF Core `DbSet`s, as in Jason Taylor's Clean Architecture template, or a repository per aggregate root plus read-side query interfaces, which keep EF Core out of Application. Either way, a Song always loads as a complete aggregate, and Domain never references EF Core.
+How handlers reach the database is left to the first domain feature (Songs), so it is chosen with real code in view. [ADR-0010](0010-handlers-reach-the-database-through-iappdbcontext.md) chose `IAppDbContext`. The two candidates are an `IAppDbContext` in Application that exposes EF Core `DbSet`s, as in Jason Taylor's Clean Architecture template, or a repository per aggregate root plus read-side query interfaces, which keep EF Core out of Application. Either way, a Song always loads as a complete aggregate, and Domain never references EF Core.
 
 ## Consequences
 
