@@ -73,6 +73,12 @@ Update Config:
 
 The Application's ID (the last part of its page address in Dokploy) is stored in GitHub, so CI knows which Application to deploy.
 
+### Logs
+
+The app writes compact JSON logs to the console through Serilog ([ADR-0011](adr/0011-serilog-for-logging.md)), one line per entry, which Dokploy shows under the Application's Logs tab. Every request gets one entry with its method, path, status code and duration (a 5xx as a Warning, and a healthy `/health` check not at all, since Dokploy calls it every 10 seconds), and every entry written during a request carries its TraceId (`@tr`), the same one the `traceId` of an error response shows.
+
+Log levels come from the `Serilog` configuration section, so they change with an environment variable in the Application's environment and a redeploy, without a new image. For example, `Serilog__MinimumLevel__Override__Musialize=Debug` shows Musialize's own debug entries, and `Serilog__MinimumLevel__Override__Serilog.AspNetCore.RequestLoggingMiddleware=Warning` turns off the request entries. Set them in Dokploy's Environment tab: Docker accepts the dots in these names, but a shell's `export` rejects them.
+
 ## DNS and TLS
 
 - Each environment has a single-level subdomain of `fekko.dev` (`<name>.fekko.dev`), so Cloudflare's free certificate covers it.
