@@ -94,11 +94,11 @@ The logo and icons sit in one folder with fixed filenames, on the server under t
 | `icon-maskable-512.png` | Android launchers that crop icons to a circle or squircle |
 | `apple-touch-icon.png`  | the home screen on iPhone (180×180, no transparency)      |
 
-You provide one file, the logo: a square SVG (text converted to outlines). The other five files are generated from it:
+You provide one file, the logo: a square SVG (text converted to outlines) or a square PNG of at least 512×512. The other five files are generated from it:
 
-1. Put `logo.svg` in an empty folder outside the repository, or in the untracked `.local/`.
-2. Run `pnpm branding:icons <folder>/logo.svg`. The icons appear next to the logo ([`pwa-assets.config.ts`](../pwa-assets.config.ts) sets the sizes, and gives the maskable and Apple icons a white background with room around the logo).
-3. Copy the folder's six files to `/srv/musialize/<environment>/branding` on the server.
+1. Put `logo.svg` (or `logo.png`) in an empty folder outside the repository, or in the untracked `.local/`.
+2. Run `pnpm branding:icons <folder>/logo.svg` (or `logo.png`). The icons appear next to the logo ([`pwa-assets.config.ts`](../pwa-assets.config.ts) sets the sizes, and gives the maskable and Apple icons a white background with room around the logo). A PNG is also wrapped in a `logo.svg`, because the app always serves `logo.svg`.
+3. Copy the six files to `/srv/musialize/<environment>/branding` on the server.
 
 ## DNS and TLS
 

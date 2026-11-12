@@ -1,5 +1,5 @@
-// `pnpm branding:icons <folder>/logo.svg` writes the icons next to the logo, with the fixed
-// filenames that Branding__AssetsPath expects (see docs/deployment.md#branding).
+// The sizes and filenames for `pnpm branding:icons` (scripts/branding-icons.ts), which writes the
+// icons next to the logo with the names Branding__AssetsPath expects (docs/deployment.md#branding).
 import { defineConfig } from "@vite-pwa/assets-generator/config";
 
 // iOS fills a transparent Apple touch icon with black, and a maskable icon fills its whole shape,

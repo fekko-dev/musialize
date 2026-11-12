@@ -25,7 +25,7 @@
     "lint:links": "remark . --frail --quiet --no-stdout",
     "format": "prettier --write .",
     "prepare": "husky",
-    "branding:icons": "pwa-assets-generator --manifest=false"
+    "branding:icons": "node scripts/branding-icons.ts"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
