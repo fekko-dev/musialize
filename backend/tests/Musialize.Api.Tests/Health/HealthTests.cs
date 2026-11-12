@@ -3,7 +3,10 @@ using System.Net.Http.Json;
 using System.Reflection;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using Musialize.Api.Tests.Logging;
 using Npgsql;
+using Serilog.Events;
 using Shouldly;
 
 namespace Musialize.Api.Tests.Health;
@@ -55,6 +58,34 @@ public sealed class HealthTests(ApiFactory factory) : IAsyncLifetime
         statusCode.ShouldBe(HttpStatusCode.ServiceUnavailable);
         body.GetProperty("status").GetString().ShouldBe("unhealthy");
         body.GetProperty("databaseMigration").ValueKind.ShouldBe(JsonValueKind.Null);
+    }
+
+    // Dokploy checks /health every 10 seconds; a healthy answer would flood the logs.
+    [Fact]
+    public async Task AHealthyHealthCheckIsNotLogged()
+    {
+        using var client = factory.CreateClient();
+        var logs = factory.Services.GetRequiredService<CapturedLogs>();
+        logs.Clear();
+
+        var (statusCode, _) = await GetHealthAsync(client);
+
+        statusCode.ShouldBe(HttpStatusCode.OK);
+        LoggingTests.RequestLogFor(logs, "/health").ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task AnUnhealthyHealthCheckIsLoggedAsAWarning()
+    {
+        var unmigrated = await CreateEmptyDatabaseAsync("unmigrated_logged");
+        await using var unmigratedFactory = FactoryFor(unmigrated);
+        using var client = unmigratedFactory.CreateClient();
+
+        var (statusCode, _) = await GetHealthAsync(client);
+
+        statusCode.ShouldBe(HttpStatusCode.ServiceUnavailable);
+        LoggingTests.RequestLogFor(unmigratedFactory.Services.GetRequiredService<CapturedLogs>(), "/health")
+            .ShouldHaveSingleItem().Level.ShouldBe(LogEventLevel.Warning);
     }
 
     private WebApplicationFactory<Program> FactoryFor(string connectionString) =>

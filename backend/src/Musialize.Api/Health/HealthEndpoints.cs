@@ -11,9 +11,11 @@ internal static class HealthEndpoints
         .Single(attribute => attribute.Key == "AppVersion")
         .Value ?? throw new InvalidOperationException("The build must set AppVersion.");
 
+    public const string Path = "/health";
+
     public static void MapHealthEndpoints(this IEndpointRouteBuilder app)
     {
-        var health = app.MapGroup("/health").WithTags("Health");
+        var health = app.MapGroup(Path).WithTags("Health");
 
         health.MapGet("", GetHealth)
             .WithName("GetHealth")

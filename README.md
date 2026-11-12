@@ -39,4 +39,4 @@ Interface text goes through translation keys in [`web/src/locales/en.ts`](web/sr
 - [CONTRIBUTING.md](CONTRIBUTING.md): branches, commits, pull requests and migrations
 - [GLOSSARY.md](GLOSSARY.md): the domain terms used in code, issues and commits
 - [Architecture decisions](docs/adr/)
-- [Deployment](docs/deployment.md): staging and production
+- [Deployment](docs/deployment.md): staging and production, including [logs and log levels](docs/deployment.md#logs)
