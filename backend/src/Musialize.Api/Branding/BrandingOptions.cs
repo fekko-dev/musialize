@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.Extensions.Options;
 
 namespace Musialize.Api.Branding;
@@ -25,12 +26,15 @@ internal sealed class BrandingOptions
     private static readonly string DefaultAssetsPath = Path.Combine(AppContext.BaseDirectory, "Branding", "Defaults");
 
     /// <summary>The name in the header, the browser tab and the installed app.</summary>
+    [Required]
     public string AppName { get; set; } = "Musialize";
 
     /// <summary>The name under the icon on a home screen, where a long name gets cut off.</summary>
+    [Required]
     public string ShortName { get; set; } = "Musialize";
 
     /// <summary>The installed app's status and title bar on Android. Used in the manifest only.</summary>
+    [RegularExpression("^#[0-9a-fA-F]{6}$", ErrorMessage = "Use a colour like #ffffff.")]
     public string ThemeColor { get; set; } = "#ffffff";
 
     /// <summary>The folder with the <see cref="AssetFiles"/>, as set. Read <see cref="ResolvedAssetsPath"/> instead.</summary>

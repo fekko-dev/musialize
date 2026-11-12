@@ -145,6 +145,18 @@ public sealed class BrandingTests : IDisposable
         Should.Throw<Exception>(configured.CreateClient);
     }
 
+    // A typo in Dokploy shows up as a failed deploy, not as a nameless header or a broken manifest.
+    [Theory]
+    [InlineData("Branding:AppName", "")]
+    [InlineData("Branding:ShortName", "")]
+    [InlineData("Branding:ThemeColor", "#12345")]
+    public void TheAppDoesNotStartWithAnInvalidSetting(string setting, string value)
+    {
+        using var invalid = _defaults.WithWebHostBuilder(builder => builder.UseSetting(setting, value));
+
+        Should.Throw<Exception>(invalid.CreateClient);
+    }
+
     // The committed defaults, read from the source tree rather than from what the build copied.
     private static string DefaultAssetsInTheRepository => Path.GetFullPath(
         Path.Combine(ThisFilesFolder(), "../../../src/Musialize.Api/Branding/Defaults"));
