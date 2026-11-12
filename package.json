@@ -24,12 +24,14 @@
     "lint:dotnet": "dotnet format backend/Musialize.slnx --verify-no-changes",
     "lint:links": "remark . --frail --quiet --no-stdout",
     "format": "prettier --write .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "branding:icons": "pwa-assets-generator --manifest=false"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
     "@eslint/js": "^10.0.1",
+    "@vite-pwa/assets-generator": "^2.0.0",
     "concurrently": "^10.0.7",
     "eslint": "^10.14.0",
     "eslint-import-resolver-typescript": "^4.4.5",

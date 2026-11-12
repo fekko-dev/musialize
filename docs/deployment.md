@@ -79,6 +79,27 @@ The app writes compact JSON logs to the console through Serilog ([ADR-0011](adr/
 
 Log levels come from the `Serilog` configuration section, so they change with an environment variable in the Application's environment and a redeploy, without a new image. For example, `Serilog__MinimumLevel__Override__Musialize=Debug` shows Musialize's own debug entries, and `Serilog__MinimumLevel__Override__Serilog.AspNetCore.RequestLoggingMiddleware=Warning` turns off the request entries. Set them in Dokploy's Environment tab: Docker accepts the dots in these names, but a shell's `export` rejects them.
 
+### Branding
+
+Each environment shows its Group's name and logo, set in the Application's environment, so the pilot's branding never lives in the repository. Without any settings the app is "Musialize" with its own logo.
+
+The logo and icons sit in one folder with fixed filenames, on the server under the Application's branding mount:
+
+| File                    | Used for                                                  |
+| ----------------------- | --------------------------------------------------------- |
+| `logo.svg`              | the header and the browser tab                            |
+| `favicon.ico`           | the browser tab in browsers without SVG favicons          |
+| `icon-192.png`          | the home screen on Android                                |
+| `icon-512.png`          | Android's splash screen and app switcher                  |
+| `icon-maskable-512.png` | Android launchers that crop icons to a circle or squircle |
+| `apple-touch-icon.png`  | the home screen on iPhone (180×180, no transparency)      |
+
+You provide one file, the logo: a square SVG (text converted to outlines). The other five files are generated from it:
+
+1. Put `logo.svg` in an empty folder outside the repository, or in the untracked `.local/`.
+2. Run `pnpm branding:icons <folder>/logo.svg`. The icons appear next to the logo ([`pwa-assets.config.ts`](../pwa-assets.config.ts) sets the sizes, and gives the maskable and Apple icons a white background with room around the logo).
+3. Copy the folder's six files to `/srv/musialize/<environment>/branding` on the server.
+
 ## DNS and TLS
 
 - Each environment has a single-level subdomain of `fekko.dev` (`<name>.fekko.dev`), so Cloudflare's free certificate covers it.
