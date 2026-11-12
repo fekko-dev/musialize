@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+#
+# Runs the migration bundle of one image against one environment's database (ADR-0009).
+#
+# CI calls this over SSH as the deploy user. That user's key may run only this script (an SSH
+# forced command), and sudo runs it as root, because only root may read the env files and
+# start Docker. CI's request arrives in SSH_ORIGINAL_COMMAND as "<environment> <tag>":
+#
+#   staging sha-1a2b3c4
+#   production v0.3.0
+#
+# Anything else is rejected. Installed on the server as /usr/local/sbin/musialize-migrate;
+# see docs/deployment.md.
+
+set -euo pipefail
+
+readonly IMAGE=ghcr.io/fekko-dev/musialize
+readonly NETWORK=dokploy-network
+
+request="${SSH_ORIGINAL_COMMAND:-}"
+
+# The whole request must match: one environment, one space, one immutable tag, nothing else.
+if [[ ! "$request" =~ ^(staging|production)\ (sha-[0-9a-f]{7,40}|v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+  echo "musialize-migrate: expected '<staging|production> <sha-…|v…>', got '$request'" >&2
+  exit 64
+fi
+environment="${BASH_REMATCH[1]}"
+tag="${BASH_REMATCH[2]}"
+
+# Root-only file with the migrator's connection string (ConnectionStrings__Database).
+env_file="/etc/musialize/$environment.env"
+if [[ ! -r "$env_file" ]]; then
+  echo "musialize-migrate: $env_file is missing" >&2
+  exit 1
+fi
+
+echo "musialize-migrate: applying migrations from $IMAGE:$tag to $environment"
+
+# A one-off container on Dokploy's network, where the database is reachable. exec hands the
+# bundle's output and exit code straight back to the caller.
+exec docker run --rm --network "$NETWORK" --env-file "$env_file" "$IMAGE:$tag" ./efbundle
