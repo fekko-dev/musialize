@@ -142,7 +142,7 @@ This is one JSON POST with an `x-lettermint-token` header ([OpenAPI](https://let
 ## 4. What would change the recommendation
 
 - **We need Lettermint features beyond "send one message" from code**, such as resend, cancel or reschedule, suppression management, or analytics. The SDK covers these through the Team API ([README](https://github.com/lettermint/lettermint-dotnet/blob/main/README.md)). Not planned.
-- **Webhooks.** If we add a webhook endpoint (for example, to show "bounced" to an Organizer), the SDK's `Webhook` verifier can be used **for verification only**, while sending stays on SMTP. This does not by itself argue for sending through the SDK.
+- **Webhooks.** If we add a webhook endpoint (for example, to show "bounced" to a Group admin), the SDK's `Webhook` verifier can be used **for verification only**, while sending stays on SMTP. This does not by itself argue for sending through the SDK.
 - **Outbound 587 becomes unreliable** from Hetzner or Dokploy. Try 2587 first, then switch to the API.
 - **We move to a paid plan and want Sandbox** as the CI target instead of Mailpit. Sandbox works over SMTP too, so this alone doesn't flip the choice.
 - **The SDK matures:** a year of non-breaking releases, more maintainers, real usage. That would remove reason 3, but not reasons 1 and 4.
