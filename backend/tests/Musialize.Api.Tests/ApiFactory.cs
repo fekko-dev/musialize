@@ -19,6 +19,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:18").Build();
     private Respawner? _respawner;
 
+    /// <summary>The Group the API shows. Tests that need it add it after resetting the database.</summary>
+    public static readonly Guid GroupId = new("5e5e5e5e-0000-4000-8000-000000000042");
+
     public string ConnectionString => _postgres.GetConnectionString();
 
     /// <summary>The newest migration in the build, which <see cref="InitializeAsync"/> applies to the test database.</summary>
@@ -68,6 +71,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     protected override void ConfigureWebHost(IWebHostBuilder builder) =>
         builder
             .UseSetting("ConnectionStrings:Database", ConnectionString)
+            .UseSetting("DemoGroup:Id", GroupId.ToString())
             .ConfigureServices(services => services.AddCapturedLogs());
 
     public override async ValueTask DisposeAsync()

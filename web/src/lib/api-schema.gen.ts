@@ -36,6 +36,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/songs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetSuggestions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -51,6 +67,15 @@ export interface components {
         };
         /** @enum {unknown} */
         HealthStatus: "healthy" | "unhealthy";
+        SongResponse: {
+            /** Format: uuid */
+            id: string;
+            title: string;
+            artist: string;
+            link: string;
+            /** Format: date-time */
+            suggestedAt: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -105,6 +130,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BrandingResponse"];
+                };
+            };
+        };
+    };
+    GetSuggestions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SongResponse"][];
                 };
             };
         };
