@@ -53,5 +53,27 @@ services:
       timeout: 5s
       retries: 15
 
+  # The same image with a Group's branding, as Dokploy sets it on staging and production.
+  app-branded:
+    image: ${MUSIALIZE_IMAGE:-musialize:e2e}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      ConnectionStrings__Database: "Host=postgres;Port=5432;Database=musialize;Username=musialize_app;Password=app"
+      Branding__AppName: "The Test Group"
+      Branding__ShortName: "Test Group"
+      Branding__ThemeColor: "#123456"
+      Branding__AssetsPath: /branding
+    volumes:
+      - ./e2e/branding:/branding:ro
+    ports:
+      - "8081:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+
   mailpit:
     image: axllent/mailpit:v1.33
