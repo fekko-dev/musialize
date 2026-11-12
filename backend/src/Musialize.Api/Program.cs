@@ -78,6 +78,13 @@ try
 
     app.MapHealthEndpoints();
 
+    // The built SPA, which only the image has (the Dockerfile copies it into wwwroot). In
+    // development Vite serves it instead.
+    if (app.Environment.WebRootFileProvider.GetFileInfo("index.html").Exists)
+    {
+        MapSpa(app);
+    }
+
     app.Run();
     return 0;
 }
@@ -96,6 +103,22 @@ static LoggerConfiguration WriteToConsole(LoggerConfiguration logger, bool devel
     development
         ? logger.WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
         : logger.WriteTo.Console(new RenderedCompactJsonFormatter());
+
+// Every GET for a path that isn't an endpoint or a file returns index.html, so the SPA's router
+// handles it. Under /api a missing endpoint is a ProblemDetails 404 (from UseStatusCodePages)
+// instead. Both fallbacks take only GET and HEAD, like a page load: one that took every method
+// would turn a wrong method on a real endpoint from a 405 into a 404.
+static void MapSpa(WebApplication app)
+{
+    app.MapStaticAssets();
+    app.MapFallback("/api/{**path}", () => TypedResults.NotFound())
+        .WithMetadata(new HttpMethodMetadata([HttpMethods.Get, HttpMethods.Head]));
+    app.MapFallbackToFile("index.html", new StaticFileOptions
+    {
+        // Always revalidated: a cached copy would point at assets a deploy has removed.
+        OnPrepareResponse = context => context.Context.Response.Headers.CacheControl = "no-cache",
+    });
+}
 
 // Reads what WebApplication.CreateBuilder reads later: ASPNETCORE_ENVIRONMENT wins, and unset means Production.
 static bool IsDevelopmentBeforeTheHostExists() =>
