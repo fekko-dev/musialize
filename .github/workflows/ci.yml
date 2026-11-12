@@ -188,10 +188,14 @@ jobs:
           DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
           DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
           APPLICATION_ID: ${{ vars.DOKPLOY_APPLICATION_ID }}
+        # No --show-error: curl's own messages name the host, and GitHub only masks the whole
+        # DOKPLOY_URL. Dokploy's error body is shown instead.
         run: |
           dokploy() {
-            curl --silent --show-error --fail-with-body --output /dev/null \
-              --header "x-api-key: $DOKPLOY_API_KEY" --json "$2" "${DOKPLOY_URL%/}/api/$1"
+            local response
+            response="$(curl --silent --fail-with-body \
+              --header "x-api-key: $DOKPLOY_API_KEY" --json "$2" "${DOKPLOY_URL%/}/api/$1")" ||
+              { echo "::error::Dokploy $1 failed (curl exit code $?): $response"; return 1; }
           }
           dokploy application.update "$(jq -n --arg id "$APPLICATION_ID" --arg image "$IMAGE:$TAG" \
             '{applicationId: $id, dockerImage: $image}')"
