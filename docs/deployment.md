@@ -118,7 +118,7 @@ CI runs migrations over SSH before each deploy ([ADR-0009](adr/0009-migration-bu
   deploy ALL=(root) NOPASSWD: /usr/local/sbin/musialize-migrate
   ```
 
-- **The script** (`deploy/musialize-migrate`, installed as `/usr/local/sbin/musialize-migrate`) accepts only `staging` or `production` plus a `sha-…` or `v…` tag. It runs the image's migration bundle in a one-off container on `dokploy-network`, with that environment's env file, and passes the output and exit code back to CI.
+- **The script** ([`deploy/musialize-migrate`](../deploy/musialize-migrate), installed as `/usr/local/sbin/musialize-migrate`) accepts only `staging` or `production` plus a `sha-…` or `v…` tag. It runs the image's migration bundle in a one-off container on `dokploy-network`, with that environment's env file, and passes the output and exit code back to CI.
 
   The bundle is `/app/efbundle` in the image, and the image's working directory is `/app`, so the container runs it as:
 
