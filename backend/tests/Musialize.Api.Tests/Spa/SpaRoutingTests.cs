@@ -40,6 +40,21 @@ public sealed class SpaRoutingTests : IDisposable
         response.Headers.CacheControl.ShouldNotBeNull().NoCache.ShouldBeTrue();
     }
 
+    // An endpoint swallowed by the fallback would break Dokploy's health check, so every deploy
+    // would roll back. Without a database, /health answers with an unhealthy JSON body, which
+    // is enough to show the request reached the endpoint.
+    [Fact]
+    public async Task AnEndpointTakesPrecedenceOverTheSpa()
+    {
+        using var client = _factory.CreateClient();
+
+        using var response = await client.GetAsync(new Uri("/health", UriKind.Relative), TestContext.Current.CancellationToken);
+
+        response.Content.Headers.ContentType.ShouldNotBeNull().MediaType.ShouldBe("application/json");
+        var health = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+        health.GetProperty("status").GetString().ShouldNotBeNullOrEmpty();
+    }
+
     [Fact]
     public async Task AnUnknownApiPathReturnsAProblemDetailsNotFoundInsteadOfTheSpa()
     {
