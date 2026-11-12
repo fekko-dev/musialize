@@ -11,6 +11,14 @@ using Serilog.Formatting.Compact;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
+builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
+{
+    if (context.Exception is not null
+        && context.HttpContext.RequestServices.GetRequiredService<IHostEnvironment>().IsDevelopment())
+    {
+        context.ProblemDetails.Detail = context.Exception.ToString();
+    }
+});
 builder.Services.AddSerilog((services, logger) =>
     WriteToConsole(logger, services.GetRequiredService<IHostEnvironment>().IsDevelopment())
         .ReadFrom.Configuration(services.GetRequiredService<IConfiguration>())
@@ -32,12 +40,16 @@ app.UseSerilogRequestLogging(options =>
     options.GetLevel = (httpContext, _, exception) => (exception, httpContext.Response.StatusCode) switch
     {
         (not null, _) => LogEventLevel.Error,
+        // A crash is already logged as an Error by the exception handler.
         (_, >= 500) => LogEventLevel.Warning,
         // Below the minimum level, so dropped: Dokploy calls /health every 10 seconds.
         _ when httpContext.Request.Path == HealthEndpoints.Path => LogEventLevel.Verbose,
         _ => LogEventLevel.Information,
     };
 });
+app.UseExceptionHandler();
+// Gives bodyless error responses, such as a 404, a ProblemDetails body.
+app.UseStatusCodePages();
 
 if (app.Environment.IsDevelopment())
 {

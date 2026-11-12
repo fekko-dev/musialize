@@ -39,6 +39,10 @@ A migration runs before the new version starts, and for a few seconds the runnin
 - **Renames, drops and type changes take two releases (expand–contract):** first add the new form and stop depending on the old one; remove the old form in a later release. Never change a column's type in place: add a new column and move the data over.
 - **Don't rely on `Down()` methods** for deploys or rollbacks. A rollback deploys an earlier image and leaves the schema as it is.
 
+## Errors
+
+Every API error response is a ProblemDetails. Invalid input is rejected by validation (400) before a handler runs, and an expected outcome such as "not found" is a `TypedResults` result of the endpoint. **Throw an exception only for a domain conflict (409) or something unexpected (500).** The central exception handler turns an unexpected exception into a 500 and logs it, so don't catch and log it again.
+
 ## Logging
 
 Log with the built-in `ILogger` (Serilog writes the entries, see [ADR-0011](docs/adr/0011-serilog-for-logging.md)) and structured messages (`LogInformation("Song {SongId} accepted", songId)`, not string interpolation), so each value stays a separate field in the JSON logs.

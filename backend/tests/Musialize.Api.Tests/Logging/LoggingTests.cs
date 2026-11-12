@@ -23,6 +23,32 @@ public sealed class LoggingTests(ApiWithoutDatabaseFactory factory) : IClassFixt
         request.Properties.ShouldContainKey("Elapsed");
     }
 
+    // The exception handler logs the exception as the one Error; the request entry flags the 5xx as a Warning.
+    [Fact]
+    public async Task AServerErrorRequestIsLoggedAsAWarning()
+    {
+        using var client = factory.CreateClient();
+        factory.Logs.Clear();
+
+        using var response = await client.GetAsync(new Uri(TestEndpoints.Throw, UriKind.Relative), TestContext.Current.CancellationToken);
+
+        RequestLogFor(factory.Logs, TestEndpoints.Throw).ShouldHaveSingleItem().Level.ShouldBe(LogEventLevel.Warning);
+    }
+
+    // The TraceId is the one every ProblemDetails response shows, so a user's error report leads to its log entries.
+    [Fact]
+    public async Task EachRequestLogCarriesTheTraceId()
+    {
+        using var client = factory.CreateClient();
+        factory.Logs.Clear();
+
+        using var response = await client.GetAsync(new Uri(TestEndpoints.Unknown, UriKind.Relative), TestContext.Current.CancellationToken);
+        var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        var traceId = RequestLogFor(factory.Logs, TestEndpoints.Unknown).ShouldHaveSingleItem().TraceId.ShouldNotBeNull();
+        body.ShouldContain(traceId.ToString());
+    }
+
     [Fact]
     public async Task HeadersCookiesQueryValuesAndBodiesAreNeverLogged()
     {
