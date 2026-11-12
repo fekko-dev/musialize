@@ -18,17 +18,33 @@ internal static class BrandingFiles
 
     private static readonly ManifestIcon[] Icons =
     [
-        new($"{AssetsRoute}/icon-192.png", "192x192", "image/png", "any"),
-        new($"{AssetsRoute}/icon-512.png", "512x512", "image/png", "any"),
-        new($"{AssetsRoute}/icon-maskable-512.png", "512x512", "image/png", "maskable"),
+        Icon("icon-192.png", "192x192", "any"),
+        Icon("icon-512.png", "512x512", "any"),
+        Icon("icon-maskable-512.png", "512x512", "maskable"),
     ];
 
     /// <summary>Maps the logo, icons and manifest. They stay outside /api, because the browser loads them directly.</summary>
     public static void MapBrandingFiles(this IEndpointRouteBuilder app)
     {
+        app.MapGet($"{AssetsRoute}/{{file}}", GetAsset)
+            .ExcludeFromDescription();
+
         // A file for the browser, not part of the API the web app calls.
         app.MapGet("/manifest.webmanifest", GetManifest)
             .ExcludeFromDescription();
+    }
+
+    private static Results<PhysicalFileHttpResult, NotFound> GetAsset(string file, IOptions<BrandingOptions> options, HttpContext httpContext)
+    {
+        if (!BrandingOptions.AssetFiles.TryGetValue(file, out var contentType))
+        {
+            return TypedResults.NotFound();
+        }
+
+        // Revalidated on every load (cheap, with Last-Modified), so a new logo shows up without a cache to wait out.
+        httpContext.Response.Headers.CacheControl = "no-cache";
+        var path = Path.Combine(options.Value.ResolvedAssetsPath, file);
+        return TypedResults.PhysicalFile(path, contentType, lastModified: File.GetLastWriteTimeUtc(path));
     }
 
     // What "Add to home screen" installs: the name and icon under the app, and no browser bar.
@@ -37,6 +53,10 @@ internal static class BrandingFiles
             new WebManifest(options.Value.AppName, options.Value.ShortName, options.Value.ThemeColor, BackgroundColor, "standalone", "/", Icons),
             ManifestJson,
             "application/manifest+json");
+
+    // Looks the file up among the served ones, so the manifest never points at a file that isn't served.
+    private static ManifestIcon Icon(string file, string sizes, string purpose) =>
+        new($"{AssetsRoute}/{file}", sizes, BrandingOptions.AssetFiles[file], purpose);
 }
 
 internal sealed record WebManifest(string Name, string ShortName, string ThemeColor, string BackgroundColor, string Display, string StartUrl, ManifestIcon[] Icons);
