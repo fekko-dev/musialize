@@ -4,6 +4,10 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./tests",
   forbidOnly: !!process.env.CI,
+  // Playwright's recommended CI settings: one worker for stable, reproducible runs, and
+  // retries so a one-off hiccup on a shared runner doesn't fail the pull request.
+  workers: process.env.CI ? 1 : undefined,
+  retries: process.env.CI ? 2 : 0,
   reporter: "list",
   use: {
     baseURL: "http://localhost:8080",
