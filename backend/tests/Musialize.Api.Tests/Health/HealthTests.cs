@@ -89,7 +89,7 @@ public sealed class HealthTests(ApiFactory factory) : IAsyncLifetime
     }
 
     private WebApplicationFactory<Program> FactoryFor(string connectionString) =>
-        factory.WithWebHostBuilder(builder => builder.UseSetting("ConnectionStrings:Musialize", connectionString));
+        factory.WithWebHostBuilder(builder => builder.UseSetting("ConnectionStrings:Database", connectionString));
 
     private async Task<string> CreateEmptyDatabaseAsync(string name)
     {

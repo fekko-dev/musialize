@@ -1,0 +1,14 @@
+{
+  "name": "@musialize/e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node run.ts",
+    "typecheck": "tsc"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0",
+    "@types/node": "^26.6.6",
+    "typescript": "^6.0.3"
+  }
+}

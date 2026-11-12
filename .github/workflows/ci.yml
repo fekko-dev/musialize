@@ -68,3 +68,53 @@ jobs:
           require-lockfile: true
       - run: pnpm test:web
       - run: pnpm build:web
+
+  # Builds the image that runs on staging and production once; test-e2e tests this same image.
+  image:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: version
+        run: echo "version=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          build-args: APP_VERSION=${{ steps.version.outputs.version }}
+          tags: musialize:ci
+          outputs: type=docker,dest=${{ runner.temp }}/image.tar
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - uses: actions/upload-artifact@v7
+        with:
+          name: image
+          path: ${{ runner.temp }}/image.tar
+          retention-days: 1
+
+  test-e2e:
+    needs: image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/setup@v3
+        with:
+          cache: true
+          require-lockfile: true
+      - uses: actions/download-artifact@v8
+        with:
+          name: image
+          path: ${{ runner.temp }}
+      - run: docker load --input "$RUNNER_TEMP/image.tar"
+      - run: pnpm --filter @musialize/e2e exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+        env:
+          MUSIALIZE_IMAGE: musialize:ci
+          APP_VERSION: ${{ needs.image.outputs.version }}
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-traces
+          path: e2e/test-results/
+          retention-days: 7
