@@ -109,6 +109,10 @@ You provide one file, the logo: a square SVG (text converted to outlines) or a s
 2. Run `pnpm branding:icons <folder>/logo.svg` (or `logo.png`). The icons appear next to the logo ([`pwa-assets.config.ts`](../pwa-assets.config.ts) sets the sizes, and gives the maskable and Apple icons a white background with room around the logo). A PNG is also wrapped in a `logo.svg`, because the app always serves `logo.svg`.
 3. Copy the six files to `/srv/musialize/<environment>/branding` on the server.
 
+### Demo data
+
+Until sign-in arrives (#21), the app shows one Group: the one in `DemoGroup__Id` (a fixed id in `appsettings.json`). On **staging only**, set `DemoGroup__Seed=true` so the app adds that Group with three Suggestions at startup when it's missing. Never set it on production. Staging stays behind basic auth in Dokploy while anyone could add Songs without signing in.
+
 ## DNS and TLS
 
 - Each environment has a single-level subdomain of `fekko.dev` (`<name>.fekko.dev`), so Cloudflare's free certificate covers it.

@@ -5,9 +5,9 @@ export function AppHeader() {
   const branding = useBranding();
 
   return (
-    <header className="mx-auto flex w-full max-w-md items-center gap-3 px-4 pt-6">
+    <header className="flex h-14 w-full items-center gap-3 border-b px-4 md:h-18 md:px-12">
       {/* Decorative: the name next to it says the same. */}
-      <img src="/branding/logo.svg" alt="" className="size-10" />
+      <img src="/branding/logo.svg" alt="" className="size-8 md:size-10" />
       {branding.data && (
         <>
           {/* React hoists both into <head>. */}
@@ -17,7 +17,7 @@ export function AppHeader() {
             name="apple-mobile-web-app-title"
             content={branding.data.shortName}
           />
-          <h1 className="font-heading text-2xl font-semibold">
+          <h1 className="font-heading text-lg font-semibold md:text-xl">
             {branding.data.appName}
           </h1>
         </>
