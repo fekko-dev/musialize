@@ -79,6 +79,8 @@ try
     }
 
     app.MapHealthEndpoints();
+    app.MapBrandingFiles();
+
     var api = app.MapGroup("/api");
     api.MapGroup("/branding").MapBrandingApi().WithTags("Branding");
 
