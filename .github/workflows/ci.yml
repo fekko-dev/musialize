@@ -118,3 +118,95 @@ jobs:
           name: playwright-traces
           path: e2e/test-results/
           retention-days: 7
+
+  # Ships every commit on main to staging (ADR-0004, ADR-0009): push the image test-e2e tested,
+  # migrate staging's database, deploy, and wait until staging runs this commit.
+  deploy-staging:
+    if: github.event_name == 'push'
+    needs: [lint, test-backend, test-web, image, test-e2e]
+    runs-on: ubuntu-latest
+    environment: staging
+    # One deploy at a time. Runs on main already queue in commit order (see the workflow's
+    # concurrency), and a queued older deploy is replaced by a newer one, never run after it.
+    concurrency:
+      group: deploy-staging
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/fekko-dev/musialize
+      VERSION: ${{ needs.image.outputs.version }}
+      TAG: sha-${{ needs.image.outputs.version }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: image
+          path: ${{ runner.temp }}
+
+      # The image test-e2e tested, not a rebuild, under an immutable tag only (never latest).
+      - name: Push the tested image to GHCR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          docker load --input "$RUNNER_TEMP/image.tar"
+          docker tag musialize:ci "$IMAGE:$TAG"
+          echo "$GITHUB_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          docker push "$IMAGE:$TAG"
+
+      # The deploy user's key may only run deploy/musialize-migrate. Only the pinned host key is
+      # trusted, so an unknown or changed key fails here. A failed migration fails the job here,
+      # before anything is deployed. jq turns the bundle's JSON log into plain messages ("Applying
+      # migration …" or "No migrations were applied …") and drops the SQL of successful commands.
+      - name: Migrate staging's database
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}
+          SSH_HOST: ${{ secrets.DEPLOY_SSH_HOST }}
+        # pipefail, or jq's exit code would hide a failed migration.
+        shell: bash
+        run: |
+          install -m 600 /dev/null "$RUNNER_TEMP/deploy_key"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$RUNNER_TEMP/deploy_key"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$RUNNER_TEMP/known_hosts"
+          ssh -i "$RUNNER_TEMP/deploy_key" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$RUNNER_TEMP/known_hosts" \
+            -o GlobalKnownHostsFile=/dev/null \
+            "deploy@$SSH_HOST" "staging $TAG" |
+            jq --raw-input --raw-output '
+              (try fromjson catch null) as $entry
+              | if ($entry | type) != "object" then .
+                elif $entry.EventId.Name == "Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted" then empty
+                else [$entry["@m"], $entry["@x"]] | map(select(.)) | join("\n") end'
+
+      # application.update with only dockerImage changes the tag and keeps the registry login
+      # stored with the image; saveDockerProvider would overwrite that login.
+      - name: Deploy the image through the Dokploy API
+        env:
+          DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          APPLICATION_ID: ${{ vars.DOKPLOY_APPLICATION_ID }}
+        run: |
+          dokploy() {
+            curl --silent --show-error --fail-with-body --output /dev/null \
+              --header "x-api-key: $DOKPLOY_API_KEY" --json "$2" "${DOKPLOY_URL%/}/api/$1"
+          }
+          dokploy application.update "$(jq -n --arg id "$APPLICATION_ID" --arg image "$IMAGE:$TAG" \
+            '{applicationId: $id, dockerImage: $image}')"
+          dokploy application.deploy "$(jq -n --arg id "$APPLICATION_ID" --arg title "CI: $TAG" \
+            '{applicationId: $id, title: $title}')"
+
+      # Dokploy deploys in the background, and Swarm only switches over once the new version is
+      # healthy, so staging runs this commit once /health reports it.
+      - name: Wait until staging runs this commit
+        timeout-minutes: 10
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+        run: |
+          until health="$(curl --silent --max-time 10 "${APP_URL%/}/health")" &&
+            [ "$(jq -r '"\(.status) \(.version)"' <<< "$health" 2>/dev/null)" = "healthy $VERSION" ]; do
+            sleep 10
+          done
+          echo "$health"
