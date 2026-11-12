@@ -73,6 +73,11 @@ RUN apt-get update \
 WORKDIR /app
 COPY --from=api /app/ ./
 
+# The app already defaults to Production, but the migration bundle defaults to Development and
+# would then read appsettings.Development.json, falling back to local credentials when
+# ConnectionStrings__Database is missing. Production makes it fail with a clear error instead.
+ENV ASPNETCORE_ENVIRONMENT=Production
+
 # The non-root user that comes with the image. ASP.NET Core listens on 8080 by default.
 USER $APP_UID
 EXPOSE 8080
