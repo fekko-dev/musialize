@@ -39,7 +39,8 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0-noble AS api
 WORKDIR /src
 
 # Dependencies: restore NuGet packages and the dotnet-ef tool from the project files only.
-COPY global.json dotnet-tools.json ./
+# .editorconfig too: it tells the analyzers to skip the generated EF Core migrations.
+COPY global.json dotnet-tools.json .editorconfig ./
 COPY backend/Directory.Build.props backend/Directory.Packages.props backend/
 COPY backend/src/Musialize.Domain/Musialize.Domain.csproj backend/src/Musialize.Domain/
 COPY backend/src/Musialize.Application/Musialize.Application.csproj backend/src/Musialize.Application/
