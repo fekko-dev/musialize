@@ -1,4 +1,5 @@
 import { screen, waitFor, within } from "@testing-library/react";
+import { delay, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
 import { http } from "@/testing/http";
 import { renderApp } from "@/testing/render-app";
@@ -30,5 +31,40 @@ describe("every page", () => {
     expect(
       document.querySelector('meta[name="apple-mobile-web-app-title"]'),
     ).toHaveAttribute("content", "Test Group");
+  });
+
+  it("shows only the logo while the branding is loading", async () => {
+    server.use(
+      http.get("/api/branding", async () => {
+        await delay("infinite");
+      }),
+    );
+    const title = document.title;
+
+    renderApp("/");
+
+    const header = await screen.findByRole("banner");
+    expect(within(header).getByRole("presentation")).toBeInTheDocument();
+    expect(within(header).queryByRole("heading")).not.toBeInTheDocument();
+    expect(document.title).toBe(title);
+  });
+
+  // The logo is a file of its own, so it still shows; the health card says the server is down.
+  it("shows only the logo when the server can't be reached", async () => {
+    server.use(
+      http.get("/api/branding", () => HttpResponse.error()),
+      http.get("/health", () => HttpResponse.error()),
+    );
+    const title = document.title;
+
+    renderApp("/");
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "The server can't be reached.",
+    );
+    const header = screen.getByRole("banner");
+    expect(within(header).getByRole("presentation")).toBeInTheDocument();
+    expect(within(header).queryByRole("heading")).not.toBeInTheDocument();
+    expect(document.title).toBe(title);
   });
 });
