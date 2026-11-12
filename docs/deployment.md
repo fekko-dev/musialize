@@ -197,7 +197,7 @@ Only one staging deploy runs at a time. Pushes to `main` queue in order, and a w
 
 Deploy an earlier image: in Dokploy, open the Application's Provider, set the image to an earlier `ghcr.io/fekko-dev/musialize:sha-…` tag (the commit SHAs are in the `deploy-staging` logs and on `main`), save and deploy. Don't migrate down and don't rely on `Down()`: the schema stays as it is, and the [migration rules](../CONTRIBUTING.md#database-migrations) make sure the earlier version works with it. On staging, a rollback lasts until the next merge to `main` deploys the newest commit again.
 
-**Dokploy's built-in rollback** (the open question in [ADR-0004](adr/0004-promote-images-from-main-by-release-tag.md)) isn't used. In Dokploy's source, its rollbacks point to images that Dokploy tags itself during a deploy (`<appName>:v<n>`) and keeps in a separate rollback registry. Our Applications only pull images that CI built, and every one of those is already kept in GHCR under its own tag, so deploying an earlier tag does the same job without another registry.
+**Does Dokploy's built-in rollback work for images built in CI?** (the open question in [ADR-0004](adr/0004-promote-images-from-main-by-release-tag.md)) Not without extra setup, so it isn't used. In Dokploy's source, its rollbacks point to images that Dokploy tags itself during a deploy (`<appName>:v<n>`) and keeps in a separate rollback registry, which our Applications don't have. This was read in the source, not tried on the server. It isn't needed: every image CI built is already kept in GHCR under its own tag, so deploying an earlier tag does the same job without another registry.
 
 ## GitHub
 

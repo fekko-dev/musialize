@@ -12,5 +12,5 @@ There is one long-lived branch, `main`, and no environment branches. CI builds a
 
 ## Still to verify while building the pipeline
 
-- Whether Dokploy's built-in registry rollback works for applications that pull an image built in CI.
+- ~~Whether Dokploy's built-in registry rollback works for applications that pull an image built in CI.~~ Answered in [Rolling back](../deployment.md#rolling-back): not without a rollback registry, so a rollback deploys an earlier tag instead.
 - That restoring from the database backups actually works (test it once before the pilot).
