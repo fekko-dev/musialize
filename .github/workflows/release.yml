@@ -4,6 +4,9 @@
 #
 # This runs after CI succeeds on main, not on the push itself, so by the time a release is created
 # its commit's image is in GHCR and has been deployed to staging.
+#
+# Once a release is created, its commit's image gets the version tag and goes to production
+# through the same migrate, deploy and wait steps as staging (deploy.yml).
 name: Release
 
 on:
@@ -24,6 +27,10 @@ jobs:
   release-please:
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
     runs-on: ubuntu-latest
+    outputs:
+      created: ${{ steps.release.outputs.release_created }}
+      tag: ${{ steps.release.outputs.tag_name }}
+      sha: ${{ steps.release.outputs.sha }}
     steps:
       # Pull requests opened with Actions' default token don't trigger workflows, so the release
       # PR would get no CI. A token from the release-please GitHub App does trigger them.
@@ -36,3 +43,39 @@ jobs:
         id: release
         with:
           token: ${{ steps.app-token.outputs.token }}
+
+  # Gives the release commit's image, the one that ran on staging, its version tag, without
+  # rebuilding: imagetools copies the manifest within GHCR.
+  promote:
+    needs: release-please
+    if: needs.release-please.outputs.created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    outputs:
+      version: ${{ steps.promote.outputs.version }}
+    env:
+      IMAGE: ghcr.io/fekko-dev/musialize
+      SHA: ${{ needs.release-please.outputs.sha }}
+      TAG: ${{ needs.release-please.outputs.tag }}
+    steps:
+      # CI tags images with `git rev-parse --short` in a shallow checkout, which gives 7 characters.
+      - id: promote
+        name: Tag the release commit's image with the version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="${SHA:0:7}"
+          echo "$GITHUB_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          docker buildx imagetools create --tag "$IMAGE:$TAG" "$IMAGE:sha-$version" ||
+            { echo "::error::Could not tag sha-$version as $TAG. Did CI push the release commit's image?"; exit 1; }
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  deploy-production:
+    needs: [release-please, promote]
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: production
+      tag: ${{ needs.release-please.outputs.tag }}
+      version: ${{ needs.promote.outputs.version }}
+    secrets: inherit
