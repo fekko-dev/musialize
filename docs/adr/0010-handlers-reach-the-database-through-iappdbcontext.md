@@ -1,6 +1,6 @@
 # Handlers reach the database through `IAppDbContext`
 
-Use-case handlers in Application reach PostgreSQL through `IAppDbContext`, a small interface in Application with one `DbSet<T>` per aggregate root and `SaveChangesAsync`. `MusializeDbContext` in Infrastructure implements it, and handlers write plain EF Core LINQ against it. [ADR-0008](0008-four-layer-clean-architecture-with-use-case-handlers.md) left this open until the Songs feature, but Sign-in and Claim is the first feature that stores data, so it is decided now. We compared the options against Microsoft's EF Core docs and the Jason Taylor and Ardalis templates ([research](../research/persistence-access-pattern.md)).
+Use-case handlers in Application reach PostgreSQL through `IAppDbContext`, a small interface in Application with one `DbSet<T>` per aggregate root and `SaveChangesAsync`. `MusializeDbContext` in Infrastructure implements it, and handlers write plain EF Core LINQ against it. [ADR-0008](0008-four-layer-clean-architecture-with-use-case-handlers.md) left this open until the Songs feature, the first that stores data. We compared the options against Microsoft's EF Core docs and the Jason Taylor and Ardalis templates ([research](../research/persistence-access-pattern.md)).
 
 ```csharp
 public interface IAppDbContext
