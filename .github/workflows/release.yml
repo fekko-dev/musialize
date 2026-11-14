@@ -72,7 +72,7 @@ jobs:
     permissions:
       packages: write
     outputs:
-      version: ${{ steps.promote.outputs.version }}
+      commit: ${{ steps.promote.outputs.commit }}
     env:
       IMAGE: ghcr.io/fekko-dev/musialize
       SHA: ${{ needs.release-please.outputs.sha }}
@@ -84,11 +84,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          version="${SHA:0:7}"
+          commit="${SHA:0:7}"
           echo "$GITHUB_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
-          docker buildx imagetools create --tag "$IMAGE:$TAG" "$IMAGE:sha-$version" ||
-            { echo "::error::Could not tag sha-$version as $TAG. Did CI push the release commit's image?"; exit 1; }
-          echo "version=$version" >> "$GITHUB_OUTPUT"
+          docker buildx imagetools create --tag "$IMAGE:$TAG" "$IMAGE:sha-$commit" ||
+            { echo "::error::Could not tag sha-$commit as $TAG. Did CI push the release commit's image?"; exit 1; }
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
 
   deploy-production:
     needs: [release-please, promote]
@@ -96,5 +96,5 @@ jobs:
     with:
       environment: production
       tag: ${{ needs.release-please.outputs.tag }}
-      version: ${{ needs.promote.outputs.version }}
+      commit: ${{ needs.promote.outputs.commit }}
     secrets: inherit

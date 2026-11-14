@@ -14,7 +14,7 @@ on:
         description: The immutable image tag to deploy, `sha-…` or `v…` (never latest).
         type: string
         required: true
-      version:
+      commit:
         description: The short commit SHA that /health reports once the tag runs.
         type: string
         required: true
@@ -29,7 +29,7 @@ jobs:
       IMAGE: ghcr.io/fekko-dev/musialize
       ENVIRONMENT: ${{ inputs.environment }}
       TAG: ${{ inputs.tag }}
-      VERSION: ${{ inputs.version }}
+      COMMIT: ${{ inputs.commit }}
     steps:
       # The deploy user's key may only run deploy/musialize-migrate. Only the pinned host key is
       # trusted, so an unknown or changed key fails here. A failed migration fails the job here,
@@ -87,7 +87,7 @@ jobs:
           APP_URL: ${{ secrets.APP_URL }}
         run: |
           until health="$(curl --silent --max-time 10 "${APP_URL%/}/health")" &&
-            [ "$(jq -r '"\(.status) \(.version)"' <<< "$health" 2>/dev/null)" = "healthy $VERSION" ]; do
+            [ "$(jq -r '"\(.status) \(.version)"' <<< "$health" 2>/dev/null)" = "healthy $COMMIT" ]; do
             sleep 10
           done
           echo "$health"

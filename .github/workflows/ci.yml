@@ -152,5 +152,5 @@ jobs:
     with:
       environment: staging
       tag: sha-${{ needs.image.outputs.version }}
-      version: ${{ needs.image.outputs.version }}
+      commit: ${{ needs.image.outputs.version }}
     secrets: inherit
