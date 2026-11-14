@@ -36,6 +36,8 @@ services:
         condition: service_completed_successfully
     environment:
       ConnectionStrings__Database: "Host=postgres;Port=5432;Database=musialize;Username=musialize_migrator;Password=migrator"
+      # The bundle seeds the demo Group after migrating, for the Overview spec.
+      DemoGroup__Seed: "true"
     command: ["./efbundle"]
 
   app:
