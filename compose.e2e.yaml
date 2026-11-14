@@ -45,6 +45,8 @@ services:
         condition: service_completed_successfully
     environment:
       ConnectionStrings__Database: "Host=postgres;Port=5432;Database=musialize;Username=musialize_app;Password=app"
+      # Only this app seeds: two apps seeding the same database at once would race.
+      DemoGroup__Seed: "true"
     ports:
       - "8080:8080"
     healthcheck:

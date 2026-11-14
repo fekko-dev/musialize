@@ -27,6 +27,8 @@ pnpm lint      # the lint checks CI runs
 
 `pnpm test:e2e` builds the production image from the [`Dockerfile`](Dockerfile), starts it with [`compose.e2e.yaml`](compose.e2e.yaml) on port 8080, runs the [Playwright tests](e2e/tests) on desktop Chromium and a phone viewport, and stops everything again. To test an image you already have, set `MUSIALIZE_IMAGE` to it and `APP_VERSION` to the short SHA it was built with.
 
+`pnpm dev` also seeds a demo Group with three Suggestions (`DemoGroup__Seed` in [`launchSettings.json`](backend/src/Musialize.Api/Properties/launchSettings.json)), because there is no sign-in yet. The app opens on its Overview at <http://localhost:5173>, and the server's health is at `/status`.
+
 The other scripts are in [`package.json`](package.json).
 
 ## Web app layout

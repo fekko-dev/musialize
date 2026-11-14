@@ -39,8 +39,9 @@ try
     builder.Services.AddApplication();
     // For request types declared in Api; Application registers its own.
     builder.Services.AddValidation();
-    builder.Services.Configure<DemoGroupOptions>(builder.Configuration.GetSection(DemoGroupOptions.Section));
-    builder.Services.AddInfrastructure();
+    var demoGroup = builder.Configuration.GetSection(DemoGroupOptions.Section);
+    builder.Services.Configure<DemoGroupOptions>(demoGroup);
+    builder.Services.AddInfrastructure(seedDemoGroup: demoGroup.GetValue<bool>(nameof(DemoGroupOptions.Seed)));
     builder.Services.AddBranding();
     builder.Services.ConfigureHttpJsonOptions(options =>
         options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)));
