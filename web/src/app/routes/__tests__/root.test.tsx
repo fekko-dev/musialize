@@ -49,18 +49,18 @@ describe("every page", () => {
     expect(document.title).toBe(title);
   });
 
-  // The logo is a file of its own, so it still shows; the health card says the server is down.
+  // The logo is a file of its own, so it still shows; the Overview says its Suggestions can't be loaded.
   it("shows only the logo when the server can't be reached", async () => {
     server.use(
       http.get("/api/branding", () => HttpResponse.error()),
-      http.get("/health", () => HttpResponse.error()),
+      http.get("/api/songs", () => HttpResponse.error()),
     );
     const title = document.title;
 
     renderApp("/");
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
-      "The server can't be reached.",
+      "The Suggestions can't be loaded.",
     );
     const header = screen.getByRole("banner");
     expect(within(header).getByRole("presentation")).toBeInTheDocument();

@@ -1,29 +1,17 @@
 import { readdirSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 
-test("the home page shows a healthy server with the image's version and latest migration", async ({
-  page,
+// Dokploy and the deploy job poll /health, so it's checked as JSON, not on a page.
+test("/health reports a healthy server with the image's version and latest migration", async ({
+  request,
 }) => {
-  const health = page.getByRole("region", { name: "Server health" });
+  const response = await request.get("/health");
 
-  await test.step("open the home page", async () => {
-    await page.goto("/");
-  });
-
-  await test.step("the server is healthy", async () => {
-    await expect(health.getByText("Healthy", { exact: true })).toBeVisible();
-  });
-
-  await test.step("it runs the image's version", async () => {
-    await expect(
-      health.getByText(expectedVersion(), { exact: true }),
-    ).toBeVisible();
-  });
-
-  await test.step("the database has the latest migration", async () => {
-    await expect(
-      health.getByText(latestMigration(), { exact: true }),
-    ).toBeVisible();
+  expect(response.ok()).toBe(true);
+  expect(await response.json()).toEqual({
+    status: "healthy",
+    version: expectedVersion(),
+    databaseMigration: latestMigration(),
   });
 });
 
