@@ -199,6 +199,40 @@ Deploy an earlier image: in Dokploy, open the Application's Provider, set the im
 
 **Does Dokploy's built-in rollback work for images built in CI?** (the open question in [ADR-0004](adr/0004-promote-images-from-main-by-release-tag.md)) Not without extra setup, so it isn't used. In Dokploy's source, its rollbacks point to images that Dokploy tags itself during a deploy (`<appName>:v<n>`) and keeps in a separate rollback registry, which our Applications don't have. This was read in the source, not tried on the server. It isn't needed: every image CI built is already kept in GHCR under its own tag, so deploying an earlier tag does the same job without another registry.
 
+## Releasing to production
+
+Production only changes when the maintainer merges the release PR, and it then runs the very image that ran on staging ([ADR-0004](adr/0004-promote-images-from-main-by-release-tag.md)). It's done by [`release.yml`](../.github/workflows/release.yml), which starts each time CI succeeds on `main`:
+
+```mermaid
+sequenceDiagram
+    participant CI as CI on main
+    participant R as release.yml
+    participant GH as GitHub
+    participant GHCR
+    participant Prod as Production
+    CI->>R: succeeded (image on staging)
+    R->>GH: release-please: open or update the release PR
+    Note over GH: maintainer merges the release PR
+    CI->>R: succeeded for the release commit
+    R->>GH: tag vX.Y.Z, GitHub release, CHANGELOG
+    R->>GHCR: tag sha-<commit> as vX.Y.Z
+    R->>Prod: migrate, deploy, wait (deploy.yml)
+    Prod-->>R: healthy, version = <commit>
+```
+
+1. **The release PR:** [release-please](https://github.com/googleapis/release-please) reads the [Conventional Commits](../CONTRIBUTING.md#commits) on `main` and keeps one PR open with the next version and its `CHANGELOG.md` entry, so the PR lists what is on staging but not yet in production. `feat` raises the minor version and `fix` the patch version; while the version is below 1.0.0, a breaking change raises the minor version too. There is one version for the whole repository, starting at v0.1.0 ([`release-please-config.json`](../release-please-config.json); [`.release-please-manifest.json`](../.release-please-manifest.json) holds the current version). Release-please uses a token from the [release-please GitHub App](#github), so its PR gets CI.
+2. **Release:** merge the release PR like any other. CI deploys the merge commit to staging, then release-please tags it `vX.Y.Z` and creates the GitHub release.
+3. **Promote:** the merge commit's image `sha-<short SHA>` gets the tag `vX.Y.Z` in GHCR. The image isn't rebuilt or even downloaded: `docker buildx imagetools create` adds the tag to the same image.
+4. **Migrate, deploy, confirm:** the same steps as [staging](#deploying-to-staging), against production and with the `vX.Y.Z` tag. A failed migration stops the release before anything is deployed, and the job log names the migrations it applied.
+
+Release when nothing is going on: not during a Review Meeting.
+
+**If a release fails halfway** (a migration error, or production never reports the new SHA), the tag and GitHub release already exist. Fix the cause and re-run the Release workflow's failed jobs in GitHub Actions; release-please doesn't create the release again, so don't merge another release PR to retry. If the release commit's image is missing (CI didn't push it, for example because a newer commit's CI replaced its run), the promote job fails before production is touched: re-run CI for the release commit, then re-run the Release workflow.
+
+### Rolling back production
+
+As on [staging](#rolling-back): in Dokploy, set production's image to an earlier `ghcr.io/fekko-dev/musialize:v…` tag (the versions are on the repository's Releases page), save and deploy. The schema stays as it is. The rollback lasts until the next release, so fix the problem on `main` and release that fix.
+
 ## GitHub
 
 | Name                      | Kind     | Where            | What it's for                                                                                                                                          |
