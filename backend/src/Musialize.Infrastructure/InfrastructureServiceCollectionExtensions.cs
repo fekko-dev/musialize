@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Musialize.Application.Groups;
 using Musialize.Application.Health;
 using Musialize.Application.Persistence;
 using Musialize.Infrastructure.Health;
@@ -13,9 +15,10 @@ public static class InfrastructureServiceCollectionExtensions
     {
         // A named connection string is read from configuration when the first DbContext is created,
         // so startup, and build-time OpenAPI generation, never need a database or connection string.
-        services.AddDbContext<MusializeDbContext>(options => options
+        services.AddDbContext<MusializeDbContext>((provider, options) => options
             .UseNpgsql("Name=ConnectionStrings:Database")
-            .UseSnakeCaseNamingConvention());
+            .UseSnakeCaseNamingConvention()
+            .UseDemoGroupSeeding(provider.GetRequiredService<IOptions<DemoGroupOptions>>().Value));
         services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<MusializeDbContext>());
         services.AddScoped<IDatabaseHealth, DatabaseHealth>();
         return services;

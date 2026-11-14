@@ -72,6 +72,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder
             .UseSetting("ConnectionStrings:Database", ConnectionString)
             .UseSetting("DemoGroup:Id", GroupId.ToString())
+            // On in appsettings.Development.json, which the test host reads too; the seed test turns it on.
+            .UseSetting("DemoGroup:Seed", "false")
             .ConfigureServices(services => services.AddCapturedLogs());
 
     public override async ValueTask DisposeAsync()

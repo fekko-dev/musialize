@@ -8,4 +8,7 @@ public sealed class DemoGroupOptions
     public const string Section = "DemoGroup";
 
     public Guid Id { get; set; }
+
+    /// <summary>Adds the Group and a few Suggestions after migrating when they're missing. Never on in production.</summary>
+    public bool Seed { get; set; }
 }

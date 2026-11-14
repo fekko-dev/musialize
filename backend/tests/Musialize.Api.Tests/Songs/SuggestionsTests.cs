@@ -1,4 +1,6 @@
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Musialize.Domain.Groups;
 using Musialize.Domain.Songs;
@@ -45,6 +47,32 @@ public sealed class SuggestionsTests(ApiFactory factory) : IAsyncLifetime
         var suggestions = await client.GetFromJsonAsync<SongResponse[]>(Suggestions, TestContext.Current.CancellationToken);
 
         suggestions.ShouldNotBeNull().ShouldBeEmpty();
+    }
+
+    // Migrate, as the bundle does: every deploy to staging runs it, and with it the seeding, again.
+    // Which Suggestions it adds is demo content, so this only checks that a second run adds none.
+    [Fact]
+    public async Task TheDemoGroupIsSeededOnce()
+    {
+        await using var seeding = factory.WithWebHostBuilder(builder => builder.UseSetting("DemoGroup:Seed", "true"));
+        using var client = factory.CreateClient();
+
+        var first = await MigrateAndListAsync(seeding, client);
+        var second = await MigrateAndListAsync(seeding, client);
+
+        first.ShouldNotBeEmpty();
+        second.Length.ShouldBe(first.Length);
+    }
+
+    private static async Task<SongResponse[]> MigrateAndListAsync(WebApplicationFactory<Program> seeding, HttpClient client)
+    {
+        using (var scope = seeding.Services.CreateScope())
+        {
+            scope.ServiceProvider.GetRequiredService<MusializeDbContext>().Database.Migrate();
+        }
+
+        var suggestions = await client.GetFromJsonAsync<SongResponse[]>(Suggestions, TestContext.Current.CancellationToken);
+        return suggestions.ShouldNotBeNull();
     }
 
     private static Song Suggest(string title, DateTimeOffset at) =>
