@@ -201,7 +201,7 @@ Deploy an earlier image: in Dokploy, open the Application's Provider, set the im
 
 ## Releasing to production
 
-Production only changes when the maintainer merges the release PR, and it then runs the very image that ran on staging ([ADR-0004](adr/0004-promote-images-from-main-by-release-tag.md)). It's done by [`release.yml`](../.github/workflows/release.yml), which starts each time CI succeeds on `main`:
+Production only changes when the maintainer merges the release PR, and it then runs the very image that ran on staging ([ADR-0004](adr/0004-promote-images-from-main-by-release-tag.md)). It's done by [`release.yml`](../.github/workflows/release.yml), which starts each time CI succeeds on `main`. It only goes on when that CI run tested the newest commit on `main`: release-please always works on the newest commit, and an earlier commit's CI would otherwise release the release commit before its image exists. CI for the newer commit triggers it again.
 
 ```mermaid
 sequenceDiagram

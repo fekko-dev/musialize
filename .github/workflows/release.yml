@@ -32,14 +32,33 @@ jobs:
       tag: ${{ steps.release.outputs.tag_name }}
       sha: ${{ steps.release.outputs.sha }}
     steps:
+      # Release-please works on the newest commit on main, not on the commit this CI run tested.
+      # If the release PR was merged while CI for an earlier commit was still running, that run
+      # would create the release before the release commit's image exists. So only CI for the
+      # newest commit goes on; CI for a newer commit is still to come and triggers this again.
+      - id: newest
+        name: Check that CI ran on the newest commit on main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TESTED: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          newest="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)"
+          if [ "$newest" = "$TESTED" ]; then
+            echo "yes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Skipped: main has moved on to $newest; its CI run releases instead."
+          fi
+
       # Pull requests opened with Actions' default token don't trigger workflows, so the release
       # PR would get no CI. A token from the release-please GitHub App does trigger them.
       - uses: actions/create-github-app-token@v3
+        if: steps.newest.outputs.yes == 'true'
         id: app-token
         with:
           app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
       - uses: googleapis/release-please-action@v5
+        if: steps.newest.outputs.yes == 'true'
         id: release
         with:
           token: ${{ steps.app-token.outputs.token }}
