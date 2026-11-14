@@ -54,6 +54,29 @@
           }
         }
       }
+    },
+    "/api/songs": {
+      "get": {
+        "tags": [
+          "Songs"
+        ],
+        "operationId": "GetSuggestions",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SongResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -100,6 +123,35 @@
           "healthy",
           "unhealthy"
         ]
+      },
+      "SongResponse": {
+        "required": [
+          "id",
+          "title",
+          "artist",
+          "link",
+          "suggestedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "artist": {
+            "type": "string"
+          },
+          "link": {
+            "type": "string"
+          },
+          "suggestedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       }
     }
   },
@@ -109,6 +161,9 @@
     },
     {
       "name": "Branding"
+    },
+    {
+      "name": "Songs"
     }
   ]
 }

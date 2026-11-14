@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Musialize.Application.Health;
+using Musialize.Application.Persistence;
 using Musialize.Infrastructure.Health;
 using Musialize.Infrastructure.Persistence;
 
@@ -15,6 +16,7 @@ public static class DependencyInjection
         services.AddDbContext<MusializeDbContext>(options => options
             .UseNpgsql("Name=ConnectionStrings:Database")
             .UseSnakeCaseNamingConvention());
+        services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<MusializeDbContext>());
         services.AddScoped<IDatabaseHealth, DatabaseHealth>();
         return services;
     }
