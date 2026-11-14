@@ -4,3 +4,4 @@ backend/openapi.json
 **/*.gen.ts
 # Written by release-please in its own style
 CHANGELOG.md
+.release-please-manifest.json
