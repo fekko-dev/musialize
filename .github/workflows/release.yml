@@ -1,0 +1,100 @@
+# Releases to production what staging runs (ADR-0004). Release-please keeps a release PR open that
+# lists what is on staging but not yet in production. Merging it creates the version tag, the
+# GitHub release and the CHANGELOG entry.
+#
+# This runs after CI succeeds on main, not on the push itself, so by the time a release is created
+# its commit's image is in GHCR and has been deployed to staging.
+#
+# Once a release is created, its commit's image gets the version tag and goes to production
+# through the same migrate, deploy and wait steps as staging (deploy.yml).
+name: Release
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+# One release at a time, never cancelled halfway through a production deploy.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      created: ${{ steps.release.outputs.release_created }}
+      tag: ${{ steps.release.outputs.tag_name }}
+      sha: ${{ steps.release.outputs.sha }}
+    steps:
+      # Release-please works on the newest commit on main, not on the commit this CI run tested.
+      # If the release PR was merged while CI for an earlier commit was still running, that run
+      # would create the release before the release commit's image exists. So only CI for the
+      # newest commit goes on; CI for a newer commit is still to come and triggers this again.
+      - id: newest
+        name: Check that CI ran on the newest commit on main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TESTED: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          newest="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)"
+          if [ "$newest" = "$TESTED" ]; then
+            echo "yes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Skipped: main has moved on to $newest; its CI run releases instead."
+          fi
+
+      # Pull requests opened with Actions' default token don't trigger workflows, so the release
+      # PR would get no CI. A token from the release-please GitHub App does trigger them.
+      - uses: actions/create-github-app-token@v3
+        if: steps.newest.outputs.yes == 'true'
+        id: app-token
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+      - uses: googleapis/release-please-action@v5
+        if: steps.newest.outputs.yes == 'true'
+        id: release
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+  # Gives the release commit's image, the one that ran on staging, its version tag, without
+  # rebuilding: imagetools copies the manifest within GHCR.
+  promote:
+    needs: release-please
+    if: needs.release-please.outputs.created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    outputs:
+      commit: ${{ steps.promote.outputs.commit }}
+    env:
+      IMAGE: ghcr.io/fekko-dev/musialize
+      SHA: ${{ needs.release-please.outputs.sha }}
+      TAG: ${{ needs.release-please.outputs.tag }}
+    steps:
+      # CI tags images with `git rev-parse --short` in a shallow checkout, which gives 7 characters.
+      - id: promote
+        name: Tag the release commit's image with the version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          commit="${SHA:0:7}"
+          echo "$GITHUB_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          docker buildx imagetools create --tag "$IMAGE:$TAG" "$IMAGE:sha-$commit" ||
+            { echo "::error::Could not tag sha-$commit as $TAG. Did CI push the release commit's image?"; exit 1; }
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+
+  deploy-production:
+    needs: [release-please, promote]
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: production
+      tag: ${{ needs.release-please.outputs.tag }}
+      commit: ${{ needs.promote.outputs.commit }}
+    secrets: inherit

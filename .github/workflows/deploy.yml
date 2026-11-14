@@ -1,0 +1,93 @@
+# Deploys one image tag that is already in GHCR to one environment (ADR-0004, ADR-0009):
+# migrate the environment's database, deploy through the Dokploy API, and wait until the
+# environment runs it. CI calls it for staging, Release for production.
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: The GitHub Environment, which is also the migration script's environment.
+        type: string
+        required: true
+      tag:
+        description: The immutable image tag to deploy, `sha-…` or `v…` (never latest).
+        type: string
+        required: true
+      commit:
+        description: The short commit SHA that /health reports once the tag runs.
+        type: string
+        required: true
+
+permissions: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      IMAGE: ghcr.io/fekko-dev/musialize
+      ENVIRONMENT: ${{ inputs.environment }}
+      TAG: ${{ inputs.tag }}
+      COMMIT: ${{ inputs.commit }}
+    steps:
+      # The deploy user's key may only run deploy/musialize-migrate. Only the pinned host key is
+      # trusted, so an unknown or changed key fails here. A failed migration fails the job here,
+      # before anything is deployed. jq turns the bundle's JSON log into plain messages ("Applying
+      # migration …" or "No migrations were applied …") and drops the SQL of successful commands.
+      - name: Migrate the database
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}
+          SSH_HOST: ${{ secrets.DEPLOY_SSH_HOST }}
+        # pipefail, or jq's exit code would hide a failed migration.
+        shell: bash
+        run: |
+          install -m 600 /dev/null "$RUNNER_TEMP/deploy_key"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$RUNNER_TEMP/deploy_key"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$RUNNER_TEMP/known_hosts"
+          ssh -i "$RUNNER_TEMP/deploy_key" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$RUNNER_TEMP/known_hosts" \
+            -o GlobalKnownHostsFile=/dev/null \
+            "deploy@$SSH_HOST" "$ENVIRONMENT $TAG" |
+            jq --raw-input --raw-output '
+              (try fromjson catch null) as $entry
+              | if ($entry | type) != "object" then .
+                elif $entry.EventId.Name == "Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted" then empty
+                else [$entry["@m"], $entry["@x"]] | map(select(.)) | join("\n") end'
+
+      # application.update with only dockerImage changes the tag and keeps the registry login
+      # stored with the image; saveDockerProvider would overwrite that login.
+      - name: Deploy the image through the Dokploy API
+        env:
+          DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          APPLICATION_ID: ${{ vars.DOKPLOY_APPLICATION_ID }}
+        # No --show-error: curl's own messages name the host, and GitHub only masks the whole
+        # DOKPLOY_URL. Dokploy's error body is shown instead.
+        run: |
+          dokploy() {
+            local response
+            response="$(curl --silent --fail-with-body \
+              --header "x-api-key: $DOKPLOY_API_KEY" --json "$2" "${DOKPLOY_URL%/}/api/$1")" ||
+              { echo "::error::Dokploy $1 failed (curl exit code $?): $response"; return 1; }
+          }
+          dokploy application.update "$(jq -n --arg id "$APPLICATION_ID" --arg image "$IMAGE:$TAG" \
+            '{applicationId: $id, dockerImage: $image}')"
+          dokploy application.deploy "$(jq -n --arg id "$APPLICATION_ID" --arg title "CI: $TAG" \
+            '{applicationId: $id, title: $title}')"
+
+      # Dokploy deploys in the background, and Swarm only switches over once the new version is
+      # healthy, so the environment runs this commit once /health reports it.
+      - name: Wait until the environment runs this commit
+        timeout-minutes: 10
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+        run: |
+          until health="$(curl --silent --max-time 10 "${APP_URL%/}/health")" &&
+            [ "$(jq -r '"\(.status) \(.version)"' <<< "$health" 2>/dev/null)" = "healthy $COMMIT" ]; do
+            sleep 10
+          done
+          echo "$health"
