@@ -168,7 +168,7 @@ Every push to `main` deploys to staging, in the `push-image` and `deploy-staging
 
 ```mermaid
 sequenceDiagram
-    participant CI as deploy-staging
+    participant CI as CI on main
     participant GHCR
     participant Server as Server (SSH)
     participant Dokploy
@@ -227,7 +227,7 @@ sequenceDiagram
 
 Release when nothing is going on: not during a Review Meeting.
 
-**If a release fails halfway** (a migration error, or production never reports the new SHA), the tag and GitHub release already exist. Fix the cause and re-run the Release workflow's failed jobs in GitHub Actions; release-please doesn't create the release again, so don't merge another release PR to retry. If the release commit's image is missing (CI didn't push it, for example because a newer commit's CI replaced its run), the promote job fails before production is touched: re-run CI for the release commit, then re-run the Release workflow.
+**If a release fails halfway** (a migration error, or production never reports the new SHA), the tag and GitHub release already exist. Fix the cause and re-run the Release workflow's failed jobs in GitHub Actions; release-please doesn't create the release again, so don't merge another release PR to retry. If the release commit's image is missing (CI didn't push it, for example because a newer commit's CI replaced its run), the promote job fails before production is touched: re-run CI for the release commit, then re-run the Release workflow's failed jobs. Re-running that CI also deploys the release commit to staging again, which lasts until the next merge to `main`.
 
 ### Rolling back production
 
