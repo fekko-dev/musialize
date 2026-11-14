@@ -164,7 +164,7 @@ Before anything is deployed, a one-off container on `dokploy-network` must reach
 
 ## Deploying to staging
 
-Every push to `main` deploys to staging, in the `deploy-staging` job of [`ci.yml`](../.github/workflows/ci.yml), once all checks have passed:
+Every push to `main` deploys to staging, in the `push-image` and `deploy-staging` jobs of [`ci.yml`](../.github/workflows/ci.yml), once all checks have passed. Steps 2–4 live in [`deploy.yml`](../.github/workflows/deploy.yml), which production's release uses too:
 
 ```mermaid
 sequenceDiagram
