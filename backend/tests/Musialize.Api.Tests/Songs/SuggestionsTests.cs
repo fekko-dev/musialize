@@ -47,6 +47,21 @@ public sealed class SuggestionsTests(ApiFactory factory) : IAsyncLifetime
         suggestions.ShouldNotBeNull().ShouldBeEmpty();
     }
 
+    // Every restart of a development or staging app runs the seeder again.
+    [Fact]
+    public async Task TheDemoGroupIsSeededOnceWithItsSuggestionsOldestFirst()
+    {
+        for (var start = 0; start < 2; start++)
+        {
+            await using var seeded = factory.WithWebHostBuilder(builder => builder.UseSetting("DemoGroup:Seed", "true"));
+            using var client = seeded.CreateClient();
+
+            var suggestions = await client.GetFromJsonAsync<SongResponse[]>(Suggestions, TestContext.Current.CancellationToken);
+
+            suggestions.ShouldNotBeNull().Select(song => song.Title).ShouldBe(["Wonderwall", "Mr. Brightside", "Africa"]);
+        }
+    }
+
     private static Song Suggest(string title, DateTimeOffset at) =>
         Song.Suggest(ApiFactory.GroupId, title, "Artist", "https://example.com/song", at);
 
