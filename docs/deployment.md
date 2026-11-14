@@ -242,8 +242,8 @@ As on [staging](#rolling-back): in Dokploy, set production's image to an earlier
 | `DEPLOY_SSH_PRIVATE_KEY`  | secret   | repository       | The `deploy` user's key.                                                                                                                               |
 | `DEPLOY_SSH_HOST`         | secret   | repository       | Where CI connects over SSH (IP or DNS-only record).                                                                                                    |
 | `DEPLOY_SSH_KNOWN_HOSTS`  | secret   | repository       | The pinned host key.                                                                                                                                   |
-| `RELEASE_APP_ID`          | variable | repository       | The release-please GitHub App's ID.                                                                                                                    |
-| `RELEASE_APP_PRIVATE_KEY` | secret   | repository       | The App's private key. With the ID, CI creates a short-lived token.                                                                                    |
+| `RELEASE_APP_CLIENT_ID`   | variable | repository       | The release-please GitHub App's Client ID (on the App's settings page; not secret).                                                                    |
+| `RELEASE_APP_PRIVATE_KEY` | secret   | repository       | The App's private key. With the Client ID, CI creates a short-lived token.                                                                             |
 | `APP_URL`                 | secret   | each environment | The environment's address, polled after a deploy until `/health` reports the deployed SHA. A secret, so the pilot's hostname stays out of public logs. |
 | `DOKPLOY_APPLICATION_ID`  | variable | each environment | Which Dokploy Application to deploy.                                                                                                                   |
 
