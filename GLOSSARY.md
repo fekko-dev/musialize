@@ -23,16 +23,24 @@ A Member that isn't linked to an Account yet. It exists by name so that others c
 _Avoid_: Placeholder, guest, ghost
 
 **Claim**:
-Linking an Account to an Unclaimed Member, so the person takes over its Sign-ups, Suggestions and Comments. An Organizer can undo or correct a Claim.
+Linking an Account to an Unclaimed Member, so the person takes over its Sign-ups, Suggestions and Comments. A Group admin can undo or correct a Claim.
 _Avoid_: Link, merge, register
 
-**Organizer**:
-A Member who decides which Songs enter the Repertoire and manages the Group. A Group has one or more Organizers.
-_Avoid_: Board, moderator, admin, committee
+**Invite link**:
+The Group's link through which a person Joins it. A Group has one at a time; replacing it makes the old one stop working.
+_Avoid_: Invitation, join code
 
-**Admin**:
+**Join**:
+Becoming a Member of a Group through its Invite link, either by Claiming an Unclaimed Member or by adding yourself by name.
+_Avoid_: Register, sign up (a Sign-up is a commitment to a Part)
+
+**Group admin**:
+A Member who decides which Songs enter the Repertoire and manages the Group's Members. A Group has one or more Group admins.
+_Avoid_: Organizer, board, moderator, committee, admin on its own
+
+**Super admin**:
 A person who manages a whole Musialize deployment and the Groups on it, above any single Group.
-_Avoid_: Operator, superuser, owner
+_Avoid_: Admin on its own, operator, superuser, owner, host
 
 ### Songs
 
@@ -41,15 +49,15 @@ A piece of music a Group is considering or playing, described by title, artist, 
 _Avoid_: Track, number, tune
 
 **Suggestion**:
-A Song a Member has proposed to the Group that the Organizers have not yet accepted.
+A Song a Member has proposed to the Group that the Group admins have not yet accepted.
 _Avoid_: Proposal, request
 
 **Repertoire**:
-The Songs the Organizers have accepted for the Group to play.
+The Songs the Group admins have accepted for the Group to play.
 _Avoid_: Library, catalogue
 
 **Declined**:
-Describes a Suggestion the Organizers decided not to play. A Declined Song can be suggested again.
+Describes a Suggestion the Group admins decided not to play. A Declined Song can be suggested again.
 _Avoid_: Rejected, archived
 
 **Comment**:
