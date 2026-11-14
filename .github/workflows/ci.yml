@@ -121,8 +121,6 @@ jobs:
 
   # Ships every commit on main to staging (ADR-0004, ADR-0009): push the image test-e2e tested,
   # then migrate, deploy and wait until staging runs this commit (deploy.yml).
-  # One deploy at a time comes from the workflow's concurrency: runs on main queue in commit
-  # order, and a waiting older run is replaced by a newer one, so it never deploys after it.
   push-image:
     if: github.event_name == 'push'
     needs: [lint, test-backend, test-web, image, test-e2e]
@@ -146,6 +144,8 @@ jobs:
           echo "$GITHUB_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
           docker push "$IMAGE"
 
+  # One deploy at a time comes from the workflow's concurrency: runs on main queue in commit
+  # order, and a waiting older run is replaced by a newer one, so it never deploys after it.
   deploy-staging:
     needs: [image, push-image]
     uses: ./.github/workflows/deploy.yml
