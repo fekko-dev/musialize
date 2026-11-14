@@ -1,13 +1,13 @@
 import { readdirSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 
-test("the home page shows a healthy server with the image's version and latest migration", async ({
+test("the status page shows a healthy server with the image's version and latest migration", async ({
   page,
 }) => {
   const health = page.getByRole("region", { name: "Server health" });
 
-  await test.step("open the home page", async () => {
-    await page.goto("/");
+  await test.step("open the status page", async () => {
+    await page.goto("/status");
   });
 
   await test.step("the server is healthy", async () => {

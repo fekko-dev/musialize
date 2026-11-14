@@ -49,7 +49,7 @@ describe("every page", () => {
     expect(document.title).toBe(title);
   });
 
-  // The logo is a file of its own, so it still shows; the health card says the server is down.
+  // The logo is a file of its own, so it still shows; the status page's health card says the server is down.
   it("shows only the logo when the server can't be reached", async () => {
     server.use(
       http.get("/api/branding", () => HttpResponse.error()),
@@ -57,7 +57,7 @@ describe("every page", () => {
     );
     const title = document.title;
 
-    renderApp("/");
+    renderApp("/status");
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "The server can't be reached.",

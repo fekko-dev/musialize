@@ -7,4 +7,5 @@ export const server = setupServer(
   http.get("/api/branding", ({ response }) =>
     response(200).json({ appName: "Musialize", shortName: "Musialize" }),
   ),
+  http.get("/api/songs", ({ response }) => response(200).json([])),
 );
