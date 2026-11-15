@@ -15,6 +15,7 @@
     "test:backend": "dotnet test --solution backend/Musialize.slnx",
     "test:web": "pnpm --filter @musialize/web test",
     "test:e2e": "pnpm --filter @musialize/e2e test",
+    "test:e2e:dev": "pnpm --filter @musialize/e2e test:dev",
     "build:web": "pnpm --filter @musialize/web build",
     "generate:api": "dotnet build backend/src/Musialize.Api && pnpm --filter @musialize/web generate:api-types",
     "lint": "pnpm lint:format && pnpm lint:eslint && pnpm lint:types && pnpm lint:dotnet && pnpm lint:links",

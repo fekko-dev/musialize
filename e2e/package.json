@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "node run.ts",
+    "test:dev": "playwright test --config playwright.dev.config.ts",
     "typecheck": "tsc"
   },
   "devDependencies": {
