@@ -7,6 +7,12 @@ export const en = {
     collapse: "Collapse",
     expand: "Expand",
     openMenu: "Open menu",
+    theme: {
+      label: "Theme",
+      system: "System",
+      light: "Light",
+      dark: "Dark",
+    },
   },
   health: {
     title: "Server health",

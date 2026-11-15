@@ -35,6 +35,38 @@ describe("the sidebar", () => {
   });
 });
 
+describe("the theme menu", () => {
+  afterEach(() => {
+    localStorage.clear();
+    document.documentElement.classList.remove("light", "dark");
+  });
+
+  async function pickTheme(name: string) {
+    fireEvent.click(await screen.findByRole("button", { name: "Theme" }));
+    fireEvent.click(await screen.findByRole("menuitem", { name }));
+  }
+
+  it("switches to dark and remembers it in this browser", async () => {
+    renderApp("/");
+
+    await pickTheme("Dark");
+
+    expect(document.documentElement).toHaveClass("dark");
+    expect(localStorage.getItem("vite-ui-theme")).toBe("dark");
+  });
+
+  // jsdom's device setting is light (see testing/setup.ts).
+  it("goes back to the device's setting with System", async () => {
+    localStorage.setItem("vite-ui-theme", "dark");
+    renderApp("/");
+
+    await pickTheme("System");
+
+    expect(document.documentElement).toHaveClass("light");
+    expect(localStorage.getItem("vite-ui-theme")).toBe("system");
+  });
+});
+
 describe("the sidebar on a phone", () => {
   const desktopWidth = window.innerWidth;
   afterEach(() => {

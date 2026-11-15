@@ -10,6 +10,19 @@
     <link rel="icon" href="/branding/favicon.ico" sizes="any" />
     <link rel="icon" href="/branding/logo.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/branding/apple-touch-icon.png" />
+    <!-- Theme before first paint, so dark mode doesn't flash white. Rules: theme-provider.tsx -->
+    <script>
+      try {
+        const theme = localStorage.getItem("vite-ui-theme");
+        if (
+          theme === "dark" ||
+          (theme !== "light" &&
+            matchMedia("(prefers-color-scheme: dark)").matches)
+        ) {
+          document.documentElement.classList.add("dark");
+        }
+      } catch {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

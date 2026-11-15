@@ -65,3 +65,37 @@ test.describe("on a phone", () => {
     });
   });
 });
+
+test("follows the device's dark mode until a theme is picked", async ({
+  page,
+  isMobile,
+}) => {
+  const html = page.locator("html");
+  await page.emulateMedia({ colorScheme: "dark" });
+
+  await test.step("the theme is set before the app's code runs", async () => {
+    await page.route("**/assets/*.js", (route) => route.abort());
+    await page.goto("/");
+    await expect(html).toHaveClass(/\bdark\b/);
+    await page.unroute("**/assets/*.js");
+  });
+
+  await test.step("the app opens dark, like the device", async () => {
+    await page.goto("/");
+    await expect(html).toHaveClass(/\bdark\b/);
+  });
+
+  await test.step("picking Light overrides the device", async () => {
+    if (isMobile) {
+      await page.getByRole("button", { name: "Open menu" }).click();
+    }
+    await page.getByRole("button", { name: "Theme" }).click();
+    await page.getByRole("menuitem", { name: "Light" }).click();
+    await expect(html).not.toHaveClass(/\bdark\b/);
+  });
+
+  await test.step("the choice is still there after a reload", async () => {
+    await page.reload();
+    await expect(html).not.toHaveClass(/\bdark\b/);
+  });
+});

@@ -7,6 +7,7 @@ import {
 import { Link, useMatchRoute } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -88,6 +89,9 @@ function AppSidebar({ appName }: { appName: string | undefined }) {
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarMenuItem>
+            <ModeToggle />
+          </SidebarMenuItem>
           <CollapseButton />
         </SidebarMenu>
       </SidebarFooter>
