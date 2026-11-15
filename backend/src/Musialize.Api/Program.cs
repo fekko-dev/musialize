@@ -4,6 +4,8 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Diagnostics;
 using Musialize.Api.Branding;
 using Musialize.Api.Health;
+using Musialize.Api.Songs;
+using Musialize.Application.Groups;
 using Scalar.AspNetCore;
 using Serilog;
 using Serilog.Events;
@@ -35,6 +37,11 @@ try
     builder.Services.AddApplication();
     // For request types declared in Api; Application registers its own.
     builder.Services.AddValidation();
+    // Without an Id, /api/songs would quietly list nothing, so the app refuses to start instead.
+    builder.Services.AddOptions<DemoGroupOptions>()
+        .BindConfiguration(DemoGroupOptions.Section)
+        .Validate(demoGroup => demoGroup.Id != Guid.Empty, "Set DemoGroup:Id to the Group the app shows.")
+        .ValidateOnStart();
     builder.Services.AddInfrastructure();
     builder.Services.AddBranding();
     builder.Services.ConfigureHttpJsonOptions(options =>
@@ -81,6 +88,7 @@ try
 
     var api = app.MapGroup("/api");
     api.MapGroup("/branding").MapBrandingApi().WithTags("Branding");
+    api.MapGroup("/songs").MapSongsApi().WithTags("Songs");
 
     // The built SPA, which only the image has (the Dockerfile copies it into wwwroot). In
     // development Vite serves it instead.
