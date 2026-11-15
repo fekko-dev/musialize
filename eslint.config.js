@@ -73,4 +73,9 @@ export default defineConfig([
     files: ["web/src/app/routes/**/*.tsx"],
     rules: { "react-refresh/only-export-components": "off" },
   },
+  {
+    // shadcn/ui files export helpers such as `buttonVariants`; kept as generated for updates.
+    files: ["web/src/components/ui/**/*.tsx"],
+    rules: { "react-refresh/only-export-components": "off" },
+  },
 ]);

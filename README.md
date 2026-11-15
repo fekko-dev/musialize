@@ -38,6 +38,8 @@ The other scripts are in [`package.json`](package.json).
 - shared: `components/` (shadcn/ui components in `components/ui/`), `lib/` (the generated API client, i18n), `locales/` (interface text), `types/`
 - `testing/`: test helpers
 
+`components/ui/` holds only what the shadcn CLI writes. Your own shared components go one level up, in `components/`.
+
 Interface text goes through translation keys in [`web/src/locales/en.ts`](web/src/locales/en.ts); there are no barrel (`index.ts`) files.
 
 ## Further reading
