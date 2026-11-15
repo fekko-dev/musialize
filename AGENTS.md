@@ -1,6 +1,6 @@
 ## Contributing
 
-Branches, commits and pull requests follow `CONTRIBUTING.md`. Read it before your first commit.
+Branches, commits and pull requests follow `CONTRIBUTING.md`. Read it before your first commit. Reviews of a diff apply `CODING_STANDARDS.md`.
 
 ## Agent skills
 
