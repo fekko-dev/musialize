@@ -17,6 +17,7 @@
     "test:e2e": "pnpm --filter @musialize/e2e test",
     "build:web": "pnpm --filter @musialize/web build",
     "generate:api": "dotnet build backend/src/Musialize.Api && pnpm --filter @musialize/web generate:api-types",
+    "check:commits": "node scripts/check-commits.ts",
     "lint": "pnpm lint:format && pnpm lint:eslint && pnpm lint:types && pnpm lint:dotnet && pnpm lint:links",
     "lint:format": "prettier --check .",
     "lint:eslint": "eslint --max-warnings 0 .",
