@@ -7,7 +7,7 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 py-8">
+    <main className="flex w-full max-w-md flex-col gap-6 px-4 py-8 md:px-10">
       <HealthCard />
     </main>
   );
