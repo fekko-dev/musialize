@@ -27,6 +27,8 @@ pnpm lint      # the lint checks CI runs
 
 `pnpm test:e2e` builds the production image from the [`Dockerfile`](Dockerfile), starts it with [`compose.e2e.yaml`](compose.e2e.yaml) on port 8080, runs the [Playwright tests](e2e/tests) on desktop Chromium and a phone viewport, and stops everything again. To test an image you already have, set `MUSIALIZE_IMAGE` to it and `APP_VERSION` to the short SHA it was built with.
 
+While writing a test, `pnpm test:e2e:dev` runs the same tests against `pnpm dev` in seconds (reusing it, or starting it if it isn't running), leaving out the tests tagged `@image`. Pass Playwright arguments to narrow it down, such as `pnpm test:e2e:dev shell`.
+
 The other scripts are in [`package.json`](package.json).
 
 ## Web app layout

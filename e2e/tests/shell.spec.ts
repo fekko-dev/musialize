@@ -74,10 +74,17 @@ test("follows the device's dark mode until a theme is picked", async ({
   await page.emulateMedia({ colorScheme: "dark" });
 
   await test.step("the theme is set before the app's code runs", async () => {
-    await page.route("**/assets/*.js", (route) => route.abort());
+    // Every script file, on both targets (the image's /assets, the dev server's /src); the
+    // inline script in index.html isn't a request, so it still runs.
+    await page.route("**/*", (route) =>
+      route.request().resourceType() === "script"
+        ? route.abort()
+        : route.continue(),
+    );
     await page.goto("/");
     await expect(html).toHaveClass(/\bdark\b/);
-    await page.unroute("**/assets/*.js");
+    await expect(page.getByRole("navigation")).toHaveCount(0);
+    await page.unrouteAll();
   });
 
   await test.step("the app opens dark, like the device", async () => {

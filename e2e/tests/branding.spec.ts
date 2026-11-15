@@ -1,12 +1,11 @@
 import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 
-// app serves Musialize's own branding; app-branded a Group's, set like Dokploy sets it
-// (compose.e2e.yaml).
+// The app shows Musialize's own branding; a second one on 8081 shows a Group's, set like Dokploy
+// sets it (compose.e2e.yaml). Only the image setup has that second app, hence @image.
 const brandings = [
   {
     title: "without branding settings, the app is Musialize",
-    baseURL: "http://localhost:8080",
     appName: "Musialize",
     shortName: "Musialize",
     themeColor: "#ffffff",
@@ -26,8 +25,11 @@ const brandings = [
 ];
 
 for (const branding of brandings) {
-  test.describe(branding.title, () => {
-    test.use({ baseURL: branding.baseURL });
+  const otherApp = "baseURL" in branding;
+  test.describe(branding.title, { tag: otherApp ? "@image" : [] }, () => {
+    if (otherApp) {
+      test.use({ baseURL: branding.baseURL });
+    }
 
     test("the sidebar, tab and installed app use the branding", async ({
       page,
