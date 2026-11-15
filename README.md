@@ -35,7 +35,7 @@ The other scripts are in [`package.json`](package.json).
 
 - `app/`: routes, router and providers
 - `features/<name>/`: one folder per feature, with its own `api/`, `components/` and so on
-- shared: `components/` (shadcn/ui components in `components/ui/`), `lib/` (the generated API client, i18n), `locales/` (interface text), `types/`
+- shared: `components/` (shadcn/ui components in `components/ui/`, the sidebar layout around every page in `components/layouts/`), `hooks/`, `lib/` (the generated API client, i18n), `locales/` (interface text), `types/`
 - `testing/`: test helpers
 
 `components/ui/` holds only what the shadcn CLI writes. Your own shared components go one level up, in `components/`.

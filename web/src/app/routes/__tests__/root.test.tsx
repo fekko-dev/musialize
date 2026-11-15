@@ -6,7 +6,7 @@ import { renderApp } from "@/testing/render-app";
 import { server } from "@/testing/server";
 
 describe("every page", () => {
-  it("shows the Group's logo and name in the header and the browser tab", async () => {
+  it("shows the App's logo and name in the sidebar, the phone's top bar and the browser tab", async () => {
     server.use(
       http.get("/api/branding", ({ response }) =>
         response(200).json({
@@ -18,14 +18,14 @@ describe("every page", () => {
 
     renderApp("/");
 
-    const header = await screen.findByRole("banner");
-    expect(
-      await within(header).findByText("The Test Group"),
-    ).toBeInTheDocument();
-    expect(within(header).getByRole("presentation")).toHaveAttribute(
-      "src",
-      "/branding/logo.svg",
-    );
+    // Once in the sidebar, once in the phone's top bar.
+    expect(await screen.findAllByText("The Test Group")).toHaveLength(2);
+    const topBar = within(screen.getByRole("banner"));
+    expect(topBar.getByText("The Test Group")).toBeInTheDocument();
+    for (const logo of screen.getAllByRole("presentation")) {
+      expect(logo).toHaveAttribute("src", "/branding/logo.svg");
+    }
+    expect(topBar.getByRole("presentation")).toBeInTheDocument();
     await waitFor(() => expect(document.title).toBe("The Test Group"));
     // The label under the icon when an iPhone adds the app to its home screen.
     expect(
@@ -43,9 +43,8 @@ describe("every page", () => {
 
     renderApp("/");
 
-    const header = await screen.findByRole("banner");
-    expect(within(header).getByRole("presentation")).toBeInTheDocument();
-    expect(within(header).queryByRole("heading")).not.toBeInTheDocument();
+    expect(await screen.findAllByRole("presentation")).toHaveLength(2);
+    expect(screen.queryByText("The Test Group")).not.toBeInTheDocument();
     expect(document.title).toBe(title);
   });
 
@@ -62,9 +61,8 @@ describe("every page", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "The server can't be reached.",
     );
-    const header = screen.getByRole("banner");
-    expect(within(header).getByRole("presentation")).toBeInTheDocument();
-    expect(within(header).queryByRole("heading")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("presentation")).toHaveLength(2);
+    expect(screen.queryByText("The Test Group")).not.toBeInTheDocument();
     expect(document.title).toBe(title);
   });
 });

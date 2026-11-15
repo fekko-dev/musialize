@@ -29,19 +29,24 @@ for (const branding of brandings) {
   test.describe(branding.title, () => {
     test.use({ baseURL: branding.baseURL });
 
-    test("the header, tab and installed app use the branding", async ({
+    test("the sidebar, tab and installed app use the branding", async ({
       page,
+      isMobile,
     }) => {
       await test.step("open the home page", async () => {
         await page.goto("/");
       });
 
-      await test.step("the header shows the logo and name", async () => {
-        const header = page.getByRole("banner");
-        await expect(
-          header.getByRole("heading", { name: branding.appName }),
-        ).toBeVisible();
-        await expect(header.getByRole("presentation")).toHaveJSProperty(
+      if (isMobile) {
+        await test.step("open the drawer from the top bar", async () => {
+          await page.getByRole("button", { name: "Open menu" }).click();
+        });
+      }
+
+      await test.step("the sidebar shows the logo and name", async () => {
+        const sidebarHeader = page.locator('[data-sidebar="header"]');
+        await expect(sidebarHeader.getByText(branding.appName)).toBeVisible();
+        await expect(sidebarHeader.getByRole("presentation")).toHaveJSProperty(
           "complete",
           true,
         );
