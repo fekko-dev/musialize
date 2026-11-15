@@ -69,8 +69,9 @@ jobs:
       - run: pnpm test:web
       - run: pnpm build:web
 
-  # Builds the image that runs on staging and production once; test-e2e tests this same image.
-  image:
+  # Builds the image that runs on staging and production once and runs the end-to-end tests
+  # against it. On main, push-image pushes this same image.
+  test-e2e:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -78,42 +79,46 @@ jobs:
       - uses: actions/checkout@v7
       - id: version
         run: echo "version=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: pnpm/setup@v3
+        with:
+          cache: true
+          require-lockfile: true
+
+      # Neither needs the image, so both run while it builds. Only these two services are pulled:
+      # no registry has the image the app services use. The tests run headless, which only
+      # needs Chromium's headless shell.
+      - name: Start pulling the services and installing Chromium
+        run: |
+          (
+            set +e
+            docker compose --file compose.e2e.yaml pull --quiet postgres mailpit &&
+              pnpm --filter @musialize/e2e exec playwright install --with-deps --only-shell chromium
+            echo $? > "$RUNNER_TEMP/prepare.exit"
+          ) > "$RUNNER_TEMP/prepare.log" 2>&1 &
+
       - uses: docker/setup-buildx-action@v4
       - uses: docker/build-push-action@v7
         with:
           context: .
           build-args: APP_VERSION=${{ steps.version.outputs.version }}
           tags: musialize:ci
-          outputs: type=docker,dest=${{ runner.temp }}/image.tar
+          load: true
           cache-from: type=gha
           # Only main saves the cache, which takes up to a minute and a half. Pull requests read
           # the one main saved, so they get its dependency layers without writing their own.
           cache-to: ${{ github.event_name == 'push' && 'type=gha,mode=max' || '' }}
-      - uses: actions/upload-artifact@v7
-        with:
-          name: image
-          path: ${{ runner.temp }}/image.tar
-          retention-days: 1
 
-  test-e2e:
-    needs: image
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: pnpm/setup@v3
-        with:
-          cache: true
-          require-lockfile: true
-      - uses: actions/download-artifact@v8
-        with:
-          name: image
-          path: ${{ runner.temp }}
-      - run: docker load --input "$RUNNER_TEMP/image.tar"
-      - run: pnpm --filter @musialize/e2e exec playwright install --with-deps chromium
+      # Gives up after five minutes, and shows the log either way.
+      - name: Wait for the services and Chromium
+        run: |
+          for _ in $(seq 300); do [ -s "$RUNNER_TEMP/prepare.exit" ] && break; sleep 1; done
+          cat "$RUNNER_TEMP/prepare.log"
+          exit "$(cat "$RUNNER_TEMP/prepare.exit" 2>/dev/null || echo 1)"
+
       - run: pnpm test:e2e
         env:
           MUSIALIZE_IMAGE: musialize:ci
-          APP_VERSION: ${{ needs.image.outputs.version }}
+          APP_VERSION: ${{ steps.version.outputs.version }}
       - uses: actions/upload-artifact@v7
         if: failure()
         with:
@@ -121,11 +126,22 @@ jobs:
           path: e2e/test-results/
           retention-days: 7
 
+      # Only push-image needs the tested image as a file, and it only runs on main.
+      - name: Save the tested image for push-image
+        if: github.event_name == 'push'
+        run: docker save --output "$RUNNER_TEMP/image.tar" musialize:ci
+      - uses: actions/upload-artifact@v7
+        if: github.event_name == 'push'
+        with:
+          name: image
+          path: ${{ runner.temp }}/image.tar
+          retention-days: 1
+
   # Ships every commit on main to staging (ADR-0004, ADR-0009): push the image test-e2e tested,
   # then migrate, deploy and wait until staging runs this commit (deploy.yml).
   push-image:
     if: github.event_name == 'push'
-    needs: [lint, test-backend, test-web, image, test-e2e]
+    needs: [lint, test-backend, test-web, test-e2e]
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -139,7 +155,7 @@ jobs:
       - name: Push the tested image to GHCR
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IMAGE: ghcr.io/fekko-dev/musialize:sha-${{ needs.image.outputs.version }}
+          IMAGE: ghcr.io/fekko-dev/musialize:sha-${{ needs.test-e2e.outputs.version }}
         run: |
           docker load --input "$RUNNER_TEMP/image.tar"
           docker tag musialize:ci "$IMAGE"
@@ -149,10 +165,10 @@ jobs:
   # One deploy at a time comes from the workflow's concurrency: runs on main queue in commit
   # order, and a waiting older run is replaced by a newer one, so it never deploys after it.
   deploy-staging:
-    needs: [image, push-image]
+    needs: [test-e2e, push-image]
     uses: ./.github/workflows/deploy.yml
     with:
       environment: staging
-      tag: sha-${{ needs.image.outputs.version }}
-      commit: ${{ needs.image.outputs.version }}
+      tag: sha-${{ needs.test-e2e.outputs.version }}
+      commit: ${{ needs.test-e2e.outputs.version }}
     secrets: inherit
