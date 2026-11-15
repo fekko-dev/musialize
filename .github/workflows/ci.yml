@@ -86,7 +86,9 @@ jobs:
           tags: musialize:ci
           outputs: type=docker,dest=${{ runner.temp }}/image.tar
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Only main saves the cache, which takes up to a minute and a half. Pull requests read
+          # the one main saved, so they get its dependency layers without writing their own.
+          cache-to: ${{ github.event_name == 'push' && 'type=gha,mode=max' || '' }}
       - uses: actions/upload-artifact@v7
         with:
           name: image
