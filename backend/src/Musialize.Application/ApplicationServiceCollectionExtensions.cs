@@ -1,8 +1,7 @@
-using Microsoft.Extensions.DependencyInjection;
+// In this namespace, as ASP.NET Core's DI docs recommend, so callers need no extra using.
+namespace Microsoft.Extensions.DependencyInjection;
 
-namespace Musialize.Application;
-
-public static class DependencyInjection
+public static class ApplicationServiceCollectionExtensions
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
