@@ -4,8 +4,6 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Diagnostics;
 using Musialize.Api.Branding;
 using Musialize.Api.Health;
-using Musialize.Application;
-using Musialize.Infrastructure;
 using Scalar.AspNetCore;
 using Serilog;
 using Serilog.Events;

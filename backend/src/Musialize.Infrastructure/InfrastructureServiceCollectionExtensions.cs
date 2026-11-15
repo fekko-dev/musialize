@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Musialize.Application.Health;
 using Musialize.Infrastructure.Health;
 using Musialize.Infrastructure.Persistence;
 
-namespace Musialize.Infrastructure;
+// In this namespace, as ASP.NET Core's DI docs recommend, so callers need no extra using.
+namespace Microsoft.Extensions.DependencyInjection;
 
-public static class DependencyInjection
+public static class InfrastructureServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {

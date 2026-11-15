@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Options;
+using Musialize.Api.Branding;
 
-namespace Musialize.Api.Branding;
+// In this namespace, as ASP.NET Core's DI docs recommend, so callers need no extra using.
+namespace Microsoft.Extensions.DependencyInjection;
 
 internal static class BrandingServiceCollectionExtensions
 {

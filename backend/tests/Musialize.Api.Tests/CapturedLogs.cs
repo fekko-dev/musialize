@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using Microsoft.Extensions.DependencyInjection;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
@@ -27,13 +26,4 @@ public sealed class CapturedLogs : ILogEventSink
         new RenderedCompactJsonFormatter().Format(logEvent, writer);
         return writer.ToString();
     }
-}
-
-public static class CapturedLogsRegistration
-{
-    /// <summary>Captures the app's log events in a <see cref="CapturedLogs"/> singleton.</summary>
-    public static IServiceCollection AddCapturedLogs(this IServiceCollection services) =>
-        services
-            .AddSingleton<CapturedLogs>()
-            .AddSingleton<ILogEventSink>(provider => provider.GetRequiredService<CapturedLogs>());
 }
