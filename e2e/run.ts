@@ -1,7 +1,7 @@
 // `pnpm test:e2e`: builds the production image (or takes the one in MUSIALIZE_IMAGE), starts
 // compose.e2e.yaml, runs Playwright against it, and always tears everything down.
 //
-//   MUSIALIZE_IMAGE  an image to test instead of building one (CI passes the image job's)
+//   MUSIALIZE_IMAGE  an image to test instead of building one (CI passes the one it built)
 //   APP_VERSION      the short SHA it was built with; defaults to the current commit's
 import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
