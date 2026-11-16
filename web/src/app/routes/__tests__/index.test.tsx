@@ -40,6 +40,19 @@ describe("Overview", () => {
     expect(rows[1]).toHaveTextContent("Africa");
   });
 
+  // A button by the heading on a desktop, a floating one on a phone; CSS shows one of them.
+  it("opens Suggest a Song", async () => {
+    renderApp("/");
+
+    const buttons = await screen.findAllByRole("link", {
+      name: "Suggest a Song",
+    });
+    expect(buttons).toHaveLength(2);
+    for (const button of buttons) {
+      expect(button).toHaveAttribute("href", "/songs/new");
+    }
+  });
+
   it("says so when there are no Suggestions yet", async () => {
     server.use(
       http.get("/api/songs", ({ response }) => response(200).json([])),

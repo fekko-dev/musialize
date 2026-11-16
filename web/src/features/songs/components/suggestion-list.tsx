@@ -1,5 +1,9 @@
+import { PlusIcon } from "@phosphor-icons/react";
+import { Link } from "@tanstack/react-router";
+import { cn } from "cn";
 import { useTranslation } from "react-i18next";
 import { Alert, AlertTitle } from "@/components/ui/alert";
+import { buttonVariants } from "@/components/ui/button";
 import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSuggestions } from "../api/get-suggestions";
@@ -13,9 +17,22 @@ export function SuggestionList() {
       aria-labelledby="suggestions-title"
       className="flex flex-col gap-4"
     >
-      <h2 id="suggestions-title" className="text-xl font-semibold">
-        {t("suggestions.title")}
-      </h2>
+      <div className="flex items-center justify-between gap-4">
+        <h2 id="suggestions-title" className="text-xl font-semibold">
+          {t("suggestions.title")}
+        </h2>
+        {/* Desktop only: phones get the floating button on the Overview. */}
+        <Link
+          to="/songs/new"
+          className={cn(
+            buttonVariants({ size: "lg" }),
+            "hidden md:inline-flex",
+          )}
+        >
+          <PlusIcon data-icon="inline-start" />
+          {t("suggest.title")}
+        </Link>
+      </div>
       <SuggestionListContent />
     </section>
   );
