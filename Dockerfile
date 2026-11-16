@@ -29,7 +29,9 @@ COPY web/package.json web/
 RUN npm install --global "$(node -p "require('./package.json').packageManager")"
 RUN pnpm install --frozen-lockfile --filter @musialize/web
 
-# Source: build the SPA into web/dist.
+# Source: build the SPA into web/dist. The build's type check includes the test that keeps the
+# form's limits equal to the API's, which reads openapi.json.
+COPY backend/openapi.json backend/
 COPY web/ web/
 RUN pnpm --filter @musialize/web build
 
