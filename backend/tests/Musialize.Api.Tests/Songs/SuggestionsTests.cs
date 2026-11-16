@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -49,6 +50,32 @@ public sealed class SuggestionsTests(ApiFactory factory) : IAsyncLifetime
         suggestions.ShouldNotBeNull().ShouldBeEmpty();
     }
 
+    [Fact]
+    public async Task ASongIsFoundById()
+    {
+        var song = Suggest("Wonderwall", DateTimeOffset.UtcNow);
+        await AddAsync(new Group(ApiFactory.GroupId, "Test Group"), song);
+        using var client = factory.CreateClient();
+
+        var found = await client.GetFromJsonAsync<SongResponse>(SongUri(song.Id), TestContext.Current.CancellationToken);
+
+        found.ShouldNotBeNull().Id.ShouldBe(song.Id);
+        found.Title.ShouldBe("Wonderwall");
+    }
+
+    [Fact]
+    public async Task AnUnknownSongIsNotFound()
+    {
+        var otherGroupId = Guid.NewGuid();
+        var otherGroupsSong = Song.Suggest(otherGroupId, "Wonderwall", "Oasis", "https://example.com/wonderwall", DateTimeOffset.UtcNow);
+        await AddAsync(new Group(otherGroupId, "Other Group"), otherGroupsSong);
+        using var client = factory.CreateClient();
+
+        using var response = await client.GetAsync(SongUri(otherGroupsSong.Id), TestContext.Current.CancellationToken);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
     // Migrate, as the bundle does: every deploy to staging runs it, and with it the seeding, again.
     // Which Suggestions it adds is demo content, so this only checks that a second run adds none.
     [Fact]
@@ -74,6 +101,8 @@ public sealed class SuggestionsTests(ApiFactory factory) : IAsyncLifetime
         var suggestions = await client.GetFromJsonAsync<SongResponse[]>(Suggestions, TestContext.Current.CancellationToken);
         return suggestions.ShouldNotBeNull();
     }
+
+    private static Uri SongUri(Guid id) => new($"/api/songs/{id}", UriKind.Relative);
 
     private static Song Suggest(string title, DateTimeOffset at) =>
         Song.Suggest(ApiFactory.GroupId, title, "Artist", "https://example.com/song", at);
