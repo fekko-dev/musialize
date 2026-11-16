@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.0](https://github.com/fekko-dev/musialize/compare/v0.1.0...v0.2.0) (2026-11-16)
+
+
+### Features
+
+* list the Suggestions on the Overview ([a6f4404](https://github.com/fekko-dev/musialize/commit/a6f4404c475c32659765259a8f92ba7584518266))
+* seed a demo Group with three Suggestions ([1cf16c8](https://github.com/fekko-dev/musialize/commit/1cf16c8bd2b19018cd4d027a096437a053ea1311))
+* serve the Group's Suggestions from /api/songs ([6c437a1](https://github.com/fekko-dev/musialize/commit/6c437a1317c1e633dc411dd6073cce41144e2404))
+* store Groups and their Songs in PostgreSQL ([c8a6d7a](https://github.com/fekko-dev/musialize/commit/c8a6d7a2ee780b26833a3500892f699cf731b96e))
+* **web:** follow the device's dark mode, with a theme menu ([c8d44d5](https://github.com/fekko-dev/musialize/commit/c8d44d54bebd7035d6649be019008216671ea712))
+* **web:** show the app in a sidebar shell ([32c628f](https://github.com/fekko-dev/musialize/commit/32c628f4d7c9fb3047bf44e60e5e076408bd0855)), closes [#54](https://github.com/fekko-dev/musialize/issues/54)
+* **web:** show the app in a sidebar shell, with dark mode ([ebd0b50](https://github.com/fekko-dev/musialize/commit/ebd0b50e2211bf027b5382e9cb73a04479bee161))
+
 ## 0.1.0 (2026-11-14)
 
 
