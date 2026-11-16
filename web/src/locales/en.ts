@@ -21,4 +21,10 @@ export const en = {
     empty: "No Suggestions yet.",
     byline: "{{artist}} · Suggested on {{date, datetime(dateStyle: medium)}}",
   },
+  song: {
+    back: "Back",
+    loading: "Loading…",
+    unavailable: "This Song can't be shown.",
+    suggestedOn: "Suggested on {{date, datetime(dateStyle: medium)}}",
+  },
 } as const;
