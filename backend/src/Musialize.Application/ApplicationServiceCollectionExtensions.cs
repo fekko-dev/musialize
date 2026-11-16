@@ -12,6 +12,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddValidation();
 
         services.AddScoped<GetSuggestionsHandler>();
+        services.AddScoped<SuggestSongHandler>();
         services.AddScoped<GetSongHandler>();
         return services;
     }

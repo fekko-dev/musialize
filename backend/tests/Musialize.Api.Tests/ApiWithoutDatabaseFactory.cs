@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Musialize.Application.Validation;
 
 namespace Musialize.Api.Tests;
 
@@ -31,18 +30,13 @@ internal sealed class TestEndpoints : IStartupFilter
     public const string Unknown = "/api/does-not-exist";
     public const string Throw = "/api/test/throw";
     public const string ExceptionMessage = "Something only a developer should see.";
-    public const string Validate = "/api/test/validate";
 
     // Added after the app's pipeline, so they run inside its middleware, like real endpoints.
     public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next) => app =>
     {
         next(app);
         app.UseRouting();
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapGet(Throw, ThrowException);
-            endpoints.MapPost(Validate, (ValidationProbe _) => TypedResults.NoContent());
-        });
+        app.UseEndpoints(endpoints => endpoints.MapGet(Throw, ThrowException));
     };
 
     private static IResult ThrowException() => throw new InvalidOperationException(ExceptionMessage);

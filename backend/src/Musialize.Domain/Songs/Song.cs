@@ -5,6 +5,10 @@ namespace Musialize.Domain.Songs;
 /// </summary>
 public sealed class Song
 {
+    public const int TitleMaxLength = 200;
+    public const int ArtistMaxLength = 200;
+    public const int LinkMaxLength = 2048;
+
     // For EF Core.
     private Song()
     {

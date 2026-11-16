@@ -10,9 +10,9 @@ internal sealed class SongConfiguration : IEntityTypeConfiguration<Song>
     public void Configure(EntityTypeBuilder<Song> song)
     {
         song.Property(s => s.Id).ValueGeneratedNever();
-        song.Property(s => s.Title).HasMaxLength(200).UseCollation(MusializeDbContext.CaseInsensitive);
-        song.Property(s => s.Artist).HasMaxLength(200).UseCollation(MusializeDbContext.CaseInsensitive);
-        song.Property(s => s.Link).HasMaxLength(2048);
+        song.Property(s => s.Title).HasMaxLength(Song.TitleMaxLength).UseCollation(MusializeDbContext.CaseInsensitive);
+        song.Property(s => s.Artist).HasMaxLength(Song.ArtistMaxLength).UseCollation(MusializeDbContext.CaseInsensitive);
+        song.Property(s => s.Link).HasMaxLength(Song.LinkMaxLength);
 
         song.HasOne<Group>().WithMany().HasForeignKey(s => s.GroupId);
 

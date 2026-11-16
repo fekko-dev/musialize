@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,6 +49,49 @@ public sealed class SuggestionsTests(ApiFactory factory) : IAsyncLifetime
         var suggestions = await client.GetFromJsonAsync<SongResponse[]>(Suggestions, TestContext.Current.CancellationToken);
 
         suggestions.ShouldNotBeNull().ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task ASuggestionIsStoredTrimmedAndReadBack()
+    {
+        await AddAsync(new Group(ApiFactory.GroupId, "Test Group"));
+        using var client = factory.CreateClient();
+        var cancellationToken = TestContext.Current.CancellationToken;
+
+        using var response = await client.PostAsJsonAsync(
+            Suggestions, new { title = " Wonderwall ", artist = " Oasis ", link = " https://example.com/wonderwall " }, cancellationToken);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Created);
+        var created = (await response.Content.ReadFromJsonAsync<SongResponse>(cancellationToken)).ShouldNotBeNull();
+        response.Headers.Location.ShouldNotBeNull().AbsolutePath.ShouldBe($"/api/songs/{created.Id}");
+        var song = (await client.GetFromJsonAsync<SongResponse>(response.Headers.Location, cancellationToken)).ShouldNotBeNull();
+        // PostgreSQL keeps microseconds, .NET ticks are 100 ns, so the stored time can be a little shorter.
+        song.ShouldBe(created with { SuggestedAt = song.SuggestedAt });
+        song.SuggestedAt.ShouldBe(created.SuggestedAt, TimeSpan.FromMilliseconds(1));
+        (song.Title, song.Artist, song.Link).ShouldBe(("Wonderwall", "Oasis", "https://example.com/wonderwall"));
+    }
+
+    public static TheoryData<string?, string?, string?, string[]> InvalidSuggestions => new()
+    {
+        { null, null, null, ["Title", "Artist", "Link"] },
+        { " ", " ", " ", ["Title", "Artist", "Link"] },
+        { new string('a', 201), new string('a', 201), "https://example.com/" + new string('a', 2029), ["Title", "Artist", "Link"] },
+        { "Title", "Artist", "ftp://example.com/song", ["Link"] },
+        { "Title", "Artist", "example.com/song", ["Link"] },
+    };
+
+    [Theory]
+    [MemberData(nameof(InvalidSuggestions))]
+    public async Task AnInvalidSuggestionIsRejectedWithTheFieldErrors(string? title, string? artist, string? link, string[] invalidFields)
+    {
+        using var client = factory.CreateClient();
+        var cancellationToken = TestContext.Current.CancellationToken;
+
+        using var response = await client.PostAsJsonAsync(Suggestions, new { title, artist, link }, cancellationToken);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var problem = (await response.Content.ReadFromJsonAsync<HttpValidationProblemDetails>(cancellationToken)).ShouldNotBeNull();
+        problem.Errors.Keys.ShouldBe(invalidFields, ignoreOrder: true);
     }
 
     [Fact]
