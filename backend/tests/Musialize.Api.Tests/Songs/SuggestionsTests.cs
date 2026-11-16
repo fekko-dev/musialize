@@ -73,11 +73,11 @@ public sealed class SuggestionsTests(ApiFactory factory) : IAsyncLifetime
 
     public static TheoryData<string?, string?, string?, string[]> InvalidSuggestions => new()
     {
-        { null, null, null, ["Title", "Artist", "Link"] },
-        { " ", " ", " ", ["Title", "Artist", "Link"] },
-        { new string('a', 201), new string('a', 201), "https://example.com/" + new string('a', 2029), ["Title", "Artist", "Link"] },
-        { "Title", "Artist", "ftp://example.com/song", ["Link"] },
-        { "Title", "Artist", "example.com/song", ["Link"] },
+        { null, null, null, ["title", "artist", "link"] },
+        { " ", " ", " ", ["title", "artist", "link"] },
+        { new string('a', 201), new string('a', 201), "https://example.com/" + new string('a', 2029), ["title", "artist", "link"] },
+        { "Title", "Artist", "ftp://example.com/song", ["link"] },
+        { "Title", "Artist", "example.com/song", ["link"] },
     };
 
     [Theory]
