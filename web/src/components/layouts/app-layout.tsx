@@ -4,7 +4,7 @@ import {
   ListIcon,
   SparkleIcon,
 } from "@phosphor-icons/react";
-import { Link, useMatchRoute } from "@tanstack/react-router";
+import { Link, useMatches, useMatchRoute } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -37,12 +37,17 @@ type AppLayoutProps = {
 
 // The layout sets no width for the page: each page picks its own.
 export function AppLayout({ appName, children }: AppLayoutProps) {
+  // As in TanStack Router's static route data guide.
+  const isSubpage = useMatches({
+    select: (matches) => matches.some((match) => match.staticData.subpage),
+  });
+
   return (
     <TooltipProvider>
       <SidebarProvider>
         <AppSidebar appName={appName} />
         <SidebarInset>
-          <PhoneTopBar appName={appName} />
+          {!isSubpage && <PhoneTopBar appName={appName} />}
           {children}
         </SidebarInset>
       </SidebarProvider>

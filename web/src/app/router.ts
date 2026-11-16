@@ -11,4 +11,9 @@ declare module "@tanstack/react-router" {
   interface Register {
     router: AppRouter;
   }
+
+  interface StaticDataRouteOption {
+    // A page below the Overview: on a phone it shows its own top bar instead of the shell's.
+    subpage?: boolean;
+  }
 }
