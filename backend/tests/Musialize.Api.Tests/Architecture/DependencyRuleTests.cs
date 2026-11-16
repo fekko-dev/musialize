@@ -18,6 +18,18 @@ public sealed class DependencyRuleTests
         ShouldPass(result);
     }
 
+    // Handlers may use EF Core LINQ, but PostgreSQL details stay in Infrastructure (ADR-0010).
+    [Fact]
+    public void ApplicationDoesNotDependOnNpgsql()
+    {
+        var result = Types.InAssembly(Assembly.Load("Musialize.Application"))
+            .ShouldNot()
+            .HaveDependencyOn("Npgsql")
+            .GetResult();
+
+        ShouldPass(result);
+    }
+
     // The startup code is Program.cs, whose top-level statements compile into the global namespace.
     // Everything else in Api lives under Musialize.Api and must not use Infrastructure types.
     [Fact]

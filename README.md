@@ -29,6 +29,8 @@ pnpm lint      # the lint checks CI runs
 
 While writing a test, `pnpm test:e2e:dev` runs the same tests against `pnpm dev` in seconds (reusing it, or starting it if it isn't running), leaving out the tests tagged `@image`. Pass Playwright arguments to narrow it down, such as `pnpm test:e2e:dev shell`.
 
+`pnpm dev` also seeds a demo Group with three Suggestions when it migrates (`DemoGroup:Seed` in [`appsettings.Development.json`](backend/src/Musialize.Api/appsettings.Development.json)), because there is no sign-in yet. The app opens on its Overview at <http://localhost:5173>.
+
 The other scripts are in [`package.json`](package.json).
 
 ## Web app layout
