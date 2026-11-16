@@ -1,4 +1,6 @@
+using System.Net;
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,6 +51,75 @@ public sealed class SuggestionsTests(ApiFactory factory) : IAsyncLifetime
         suggestions.ShouldNotBeNull().ShouldBeEmpty();
     }
 
+    [Fact]
+    public async Task ASuggestionIsStoredTrimmedAndReadBack()
+    {
+        await AddAsync(new Group(ApiFactory.GroupId, "Test Group"));
+        using var client = factory.CreateClient();
+        var cancellationToken = TestContext.Current.CancellationToken;
+
+        using var response = await client.PostAsJsonAsync(
+            Suggestions, new { title = " Wonderwall ", artist = " Oasis ", link = " https://example.com/wonderwall " }, cancellationToken);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Created);
+        var created = (await response.Content.ReadFromJsonAsync<SongResponse>(cancellationToken)).ShouldNotBeNull();
+        response.Headers.Location.ShouldNotBeNull().AbsolutePath.ShouldBe($"/api/songs/{created.Id}");
+        var song = (await client.GetFromJsonAsync<SongResponse>(response.Headers.Location, cancellationToken)).ShouldNotBeNull();
+        // PostgreSQL keeps microseconds, .NET ticks are 100 ns, so the stored time can be a little shorter.
+        song.ShouldBe(created with { SuggestedAt = song.SuggestedAt });
+        song.SuggestedAt.ShouldBe(created.SuggestedAt, TimeSpan.FromMilliseconds(1));
+        (song.Title, song.Artist, song.Link).ShouldBe(("Wonderwall", "Oasis", "https://example.com/wonderwall"));
+    }
+
+    public static TheoryData<string?, string?, string?, string[]> InvalidSuggestions => new()
+    {
+        { null, null, null, ["title", "artist", "link"] },
+        { " ", " ", " ", ["title", "artist", "link"] },
+        { new string('a', 201), new string('a', 201), "https://example.com/" + new string('a', 2029), ["title", "artist", "link"] },
+        { "Title", "Artist", "ftp://example.com/song", ["link"] },
+        { "Title", "Artist", "example.com/song", ["link"] },
+    };
+
+    [Theory]
+    [MemberData(nameof(InvalidSuggestions))]
+    public async Task AnInvalidSuggestionIsRejectedWithTheFieldErrors(string? title, string? artist, string? link, string[] invalidFields)
+    {
+        using var client = factory.CreateClient();
+        var cancellationToken = TestContext.Current.CancellationToken;
+
+        using var response = await client.PostAsJsonAsync(Suggestions, new { title, artist, link }, cancellationToken);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var problem = (await response.Content.ReadFromJsonAsync<HttpValidationProblemDetails>(cancellationToken)).ShouldNotBeNull();
+        problem.Errors.Keys.ShouldBe(invalidFields, ignoreOrder: true);
+    }
+
+    [Fact]
+    public async Task ASongIsFoundById()
+    {
+        var song = Suggest("Wonderwall", DateTimeOffset.UtcNow);
+        await AddAsync(new Group(ApiFactory.GroupId, "Test Group"), song);
+        using var client = factory.CreateClient();
+
+        var found = await client.GetFromJsonAsync<SongResponse>(SongUri(song.Id), TestContext.Current.CancellationToken);
+
+        found.ShouldNotBeNull().Id.ShouldBe(song.Id);
+        found.Title.ShouldBe("Wonderwall");
+    }
+
+    [Fact]
+    public async Task AnUnknownSongIsNotFound()
+    {
+        var otherGroupId = Guid.NewGuid();
+        var otherGroupsSong = Song.Suggest(otherGroupId, "Wonderwall", "Oasis", "https://example.com/wonderwall", DateTimeOffset.UtcNow);
+        await AddAsync(new Group(otherGroupId, "Other Group"), otherGroupsSong);
+        using var client = factory.CreateClient();
+
+        using var response = await client.GetAsync(SongUri(otherGroupsSong.Id), TestContext.Current.CancellationToken);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
     // Migrate, as the bundle does: every deploy to staging runs it, and with it the seeding, again.
     // Which Suggestions it adds is demo content, so this only checks that a second run adds none.
     [Fact]
@@ -74,6 +145,8 @@ public sealed class SuggestionsTests(ApiFactory factory) : IAsyncLifetime
         var suggestions = await client.GetFromJsonAsync<SongResponse[]>(Suggestions, TestContext.Current.CancellationToken);
         return suggestions.ShouldNotBeNull();
     }
+
+    private static Uri SongUri(Guid id) => new($"/api/songs/{id}", UriKind.Relative);
 
     private static Song Suggest(string title, DateTimeOffset at) =>
         Song.Suggest(ApiFactory.GroupId, title, "Artist", "https://example.com/song", at);

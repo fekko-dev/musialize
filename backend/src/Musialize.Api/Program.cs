@@ -45,7 +45,12 @@ try
     builder.Services.AddInfrastructure();
     builder.Services.AddBranding();
     builder.Services.ConfigureHttpJsonOptions(options =>
-        options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)));
+    {
+        options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+        // Validation errors are keyed by C# property name, and .NET 10 has no option to follow the JSON
+        // naming policy (dotnet/aspnetcore#62341 was closed unmerged): this names them like the body.
+        options.SerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+    });
 
     var app = builder.Build();
 
